@@ -1,0 +1,136 @@
+{
+    "list_services": {
+        "case_a": {
+            "Services": [
+                {
+                    "ServiceCode": "lambda",
+                    "ServiceName": "AWS Lambda"
+                },
+                {
+                    "ServiceCode": "ec2",
+                    "ServiceName": "Amazon Elastic Compute Cloud (Amazon EC2)"
+                }
+            ]
+        }
+    },
+    "list_aws_default_service_quotas": {
+        "ec2": {
+            "Quotas": [
+                {
+                    "ServiceCode": "ec2",
+                    "ServiceName": "Amazon Elastic Compute Cloud (Amazon EC2)",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1::ec2/L-C4EABC2C",
+                    "QuotaCode": "L-C4EABC2C",
+                    "QuotaName": "Running Dedicated r6idn Hosts",
+                    "Value": 0.0,
+                    "Unit": "None",
+                    "Adjustable": true,
+                    "GlobalQuota": false
+                },
+                {
+                    "ServiceCode": "ec2",
+                    "ServiceName": "Amazon Elastic Compute Cloud (Amazon EC2)",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1::ec2/L-5D8DADF5",
+                    "QuotaCode": "L-5D8DADF5",
+                    "QuotaName": "Running Dedicated mac2 Hosts",
+                    "Value": 0.0,
+                    "Unit": "None",
+                    "Adjustable": true,
+                    "GlobalQuota": false
+                }
+            ]
+        },
+        "lambda": {
+            "Quotas": [
+                {
+                    "ServiceCode": "lambda",
+                    "ServiceName": "AWS Lambda",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1::lambda/L-B99A9384",
+                    "QuotaCode": "L-B99A9384",
+                    "QuotaName": "Concurrent executions",
+                    "Value": 1000.0,
+                    "Unit": "None",
+                    "Adjustable": true,
+                    "GlobalQuota": false,
+                    "UsageMetric": {
+                        "MetricNamespace": "AWS/Lambda",
+                        "MetricName": "ConcurrentExecutions",
+                        "MetricDimensions": {},
+                        "MetricStatisticRecommendation": "Maximum"
+                    }
+                },
+                {
+                    "ServiceCode": "lambda",
+                    "ServiceName": "AWS Lambda",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1::lambda/L-2ACBD22F",
+                    "QuotaCode": "L-2ACBD22F",
+                    "QuotaName": "Function and layer storage",
+                    "Value": 75.0,
+                    "Unit": "Gigabytes",
+                    "Adjustable": true,
+                    "GlobalQuota": false
+                }
+            ]
+        }
+    },
+    "list_service_quotas": {
+        "ec2": {
+            "Quotas": [
+                {
+                    "ServiceCode": "ec2",
+                    "ServiceName": "Amazon Elastic Compute Cloud (Amazon EC2)",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1:152328543614:ec2/L-C4EABC2C",
+                    "QuotaCode": "L-C4EABC2C",
+                    "QuotaName": "Running Dedicated r6idn Hosts",
+                    "Value": 2.0,
+                    "Unit": "None",
+                    "Adjustable": true,
+                    "GlobalQuota": false
+                },
+                {
+                    "ServiceCode": "ec2",
+                    "ServiceName": "Amazon Elastic Compute Cloud (Amazon EC2)",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1:152328543614:ec2/L-5D8DADF5",
+                    "QuotaCode": "L-5D8DADF5",
+                    "QuotaName": "Running Dedicated mac2 Hosts",
+                    "Value": 5.0,
+                    "Unit": "None",
+                    "Adjustable": true,
+                    "GlobalQuota": false
+                }
+            ]
+        },
+        "lambda": {
+            "Quotas": [
+                {
+                    "ServiceCode": "lambda",
+                    "ServiceName": "AWS Lambda",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1:152328543614:lambda/L-B99A9384",
+                    "QuotaCode": "L-B99A9384",
+                    "QuotaName": "Concurrent executions",
+                    "Value": 1000.0,
+                    "Unit": "None",
+                    "Adjustable": true,
+                    "GlobalQuota": false,
+                    "UsageMetric": {
+                        "MetricNamespace": "AWS/Lambda",
+                        "MetricName": "ConcurrentExecutions",
+                        "MetricDimensions": {},
+                        "MetricStatisticRecommendation": "Maximum"
+                    }
+                },
+                {
+                    "ServiceCode": "lambda",
+                    "ServiceName": "AWS Lambda",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1:152328543614:lambda/L-2ACBD22F",
+                    "QuotaCode": "L-2ACBD22F",
+                    "QuotaName": "Function and layer storage",
+                    "Value": 75.0,
+                    "Unit": "Gigabytes",
+                    "Adjustable": true,
+                    "GlobalQuota": false
+                }
+            ]
+        }
+    }
+}

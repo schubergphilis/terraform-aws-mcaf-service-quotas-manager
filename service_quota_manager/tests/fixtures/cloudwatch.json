@@ -1,0 +1,7 @@
+{
+    "get_metric_data": {},
+    "describe_alarms": {},
+    "delete_alarms": {},
+    "put_metric_alarm": {},
+    "put_metric_data": {}
+}
