@@ -14,7 +14,7 @@ This Service Quota Manager can be installed as part as an AWS Organization or in
 
 * To support automated motivation updates on service quota increase support tickets, at least AWS Business Support is required.
 
-* This service quota manager relies on custom CloudWatch metrics (~$0.30/metric/month) and CloudWatch alarms (~$0.10/alarm/month). Services to monitor are configurable; more services monitored means increased cost.
+* This service quota manager relies on custom CloudWatch metrics ($0.30/metric/month) and CloudWatch alarms ($0.10/alarm/month). Services to monitor are configurable; more services monitored means increased cost.
 
 * Most quotas are applied per region. This Service Quota Manager also operates in a single region. Install the Service Quota Manager in more regions in order to support more regions.
 
