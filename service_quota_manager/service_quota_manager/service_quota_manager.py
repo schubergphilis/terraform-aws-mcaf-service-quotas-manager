@@ -97,7 +97,8 @@ def handler(event, _context):
             account_id,
         )
         sqc.collect(list(set(config["selected_services"])))
-        sqc.manage_alarms(config["alerting_config"])
+        if "alerting_config" in config:
+            sqc.manage_alarms(config["alerting_config"])
 
     elif event["action"] == "IncreaseServiceQuota":
         remote_service_quota_client = boto3.client(

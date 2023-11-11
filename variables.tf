@@ -9,13 +9,19 @@ variable "quota_manager_configuration" {
   type = map(object({
     role_name         = string
     selected_services = list(string)
-    alerting_config = object({
+    alerting_config = optional(object({
       default_threshold_perc = number
-      notification_topic_arn = option(string, "")
-      rules = optional(map(map(object({
-        threshold_perc = number
-      }))))
-    })
+      notification_topic_arn = optional(string, "")
+      rules = optional(
+        map(
+          map(
+            object({
+              threshold_perc = number
+            })
+          )
+        )
+      )
+    }))
     quota_increase_config = optional(map(map(object({
       step              = optional(number)
       factor            = optional(number)
