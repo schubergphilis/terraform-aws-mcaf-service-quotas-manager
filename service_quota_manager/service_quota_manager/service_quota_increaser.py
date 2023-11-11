@@ -1,7 +1,8 @@
 import logging
-from typing import Dict, List
+from typing import List
 
 from .service_quota import ServiceQuota
+from .service_quota_increase_rule import ServiceQuotaIncreaseRule
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -13,16 +14,16 @@ class ServiceQuotaIncreaser:
         self.remote_service_quota_client = remote_service_quota_client
 
     def request_service_quota_increase(
-        self, service_quota: ServiceQuota, increase_config: Dict
+        self, service_quota: ServiceQuota, increase_config: ServiceQuotaIncreaseRule
     ) -> None:
         if not self._check_preconditions(service_quota, increase_config):
             return
 
         desired_value = service_quota.value
-        if "step" in increase_config:
-            desired_value += float(increase_config["step"])
-        elif "factor" in increase_config:
-            desired_value *= float(increase_config["factor"])
+        if increase_config.step:
+            desired_value += float(increase_config.step)
+        elif increase_config.factor:
+            desired_value *= float(increase_config.factor)
 
         logger.info(
             f"Filing a quota increase request for {service_quota.service_name} / {service_quota.quota_name} to increase quota to {desired_value}"
@@ -37,8 +38,8 @@ class ServiceQuotaIncreaser:
         )
         self._update_support_case(
             requested_quota["RequestedQuota"]["CaseId"],
-            increase_config["motivation"],
-            increase_config["cc_mail_addresses"],
+            increase_config.motivation,
+            increase_config.cc_mail_addresses,
         )
 
     def _update_support_case(
@@ -51,7 +52,7 @@ class ServiceQuotaIncreaser:
         )
 
     def _check_preconditions(
-        self, service_quota: ServiceQuota, increase_config: Dict
+        self, service_quota: ServiceQuota, increase_config: ServiceQuotaIncreaseRule
     ) -> bool:
         # Check whether the quota is adjustable and exit if it's not.
         # Makes no sense to try to increase a non-adjustable quota.

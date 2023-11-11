@@ -76,6 +76,9 @@ class ServiceQuotaCollector:
         if not self._service_quotas:
             return
 
+        if not alerting_config:
+            return
+
         alarms_paginator = self.local_cloudwatch_client.get_paginator("describe_alarms")
         alarms_pages = alarms_paginator.paginate(
             AlarmNamePrefix="Service Quota:", AlarmTypes=["MetricAlarm"]
@@ -235,7 +238,7 @@ class ServiceQuotaCollector:
                         service_quota["QuotaCode"]
                     ]
 
-                service_quota = ServiceQuota(service_quota)
+                service_quota = ServiceQuota(**service_quota)
 
                 service_quota.internal_id = "".join(
                     random.choice(string.ascii_lowercase) for _ in range(10)

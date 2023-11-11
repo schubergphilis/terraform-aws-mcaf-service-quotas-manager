@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError
 
 from .service_quota import ServiceQuota
 from .service_quota_collector import ServiceQuotaCollector
+from .service_quota_increase_rule import ServiceQuotaIncreaseRule
 from .service_quota_increaser import ServiceQuotaIncreaser
 
 logger = logging.getLogger()
@@ -51,13 +52,13 @@ def _get_service_quota_from_alarm(
     ]
     try:
         return ServiceQuota(
-            remote_service_quota_client.get_service_quota(
+            **remote_service_quota_client.get_service_quota(
                 ServiceCode=dimensions["ServiceCode"], QuotaCode=dimensions["QuotaCode"]
             )["Quota"]
         )
     except ClientError:
         return ServiceQuota(
-            remote_service_quota_client.get_aws_default_service_quota(
+            **remote_service_quota_client.get_aws_default_service_quota(
                 ServiceCode=dimensions["ServiceCode"], QuotaCode=dimensions["QuotaCode"]
             )["Quota"]
         )
@@ -97,8 +98,7 @@ def handler(event, _context):
             account_id,
         )
         sqc.collect(list(set(config["selected_services"])))
-        if "alerting_config" in config:
-            sqc.manage_alarms(config["alerting_config"])
+        sqc.manage_alarms(config.get("alerting_config"))
 
     elif event["action"] == "IncreaseServiceQuota":
         remote_service_quota_client = boto3.client(
@@ -109,11 +109,15 @@ def handler(event, _context):
         service_quota: ServiceQuota = _get_service_quota_from_alarm(
             event["alarm"], remote_service_quota_client
         )
-        increase_config = (
-            config["quota_increase_config"]
+
+        increase_rule = None
+        increase_rule_def = (
+            config.get("quota_increase_config", {})
             .get(service_quota.service_name, {})
-            .get(service_quota.quota_code, {})
+            .get(service_quota.quota_name)
         )
+        if increase_rule_def:
+            increase_rule = ServiceQuotaIncreaseRule(**increase_rule_def)
 
         sqi = ServiceQuotaIncreaser(remote_support_client, remote_service_quota_client)
-        sqi.request_service_quota_increase(service_quota, increase_config)
+        sqi.request_service_quota_increase(service_quota, increase_rule)

@@ -1,12 +1,14 @@
 # Service Quota Manager
 
-:warning: This is still a work in progress and not ready to be used yet!
+:warning: **This is still a work in progress and not ready to be used yet!**
 
 This Service Quota Manager can be installed as part as an AWS Organization or individual account to manage service quotas and become (more) demonstrably in control of your service quotas. It currently supports the following:
 
 1. Collection of service quotas and metrics per configured account, storing usage metrics centrally. Usage metrics can be derived from CloudWatch or AWS Config. The latter obviously requires AWS Config to be enabled in your target account.
 
 1. Management of alarms on your service quotas with configurable thresholds per quota. Alarms can be disabled by omitting the alerting config.
+
+1. Optionally an SNS topic can be provided as alarm action.
 
 1. Automated requesting of service quota increases by configurable steps and motivations for support case updates (requires at least AWS Business Support and alarms to be enabled).
 
