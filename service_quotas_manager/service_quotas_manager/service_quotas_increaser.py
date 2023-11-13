@@ -1,14 +1,13 @@
 import logging
 from typing import List
 
-from .service_quota import ServiceQuota
-from .service_quota_increase_rule import ServiceQuotaIncreaseRule
+from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-class ServiceQuotaIncreaser:
+class ServiceQuotasIncreaser:
     def __init__(self, remote_support_client, remote_service_quota_client):
         self.remote_support_client = remote_support_client
         self.remote_service_quota_client = remote_service_quota_client

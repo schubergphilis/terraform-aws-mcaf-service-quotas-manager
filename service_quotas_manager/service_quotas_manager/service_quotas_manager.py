@@ -5,11 +5,10 @@ from typing import Dict, Optional
 import boto3
 from botocore.exceptions import ClientError
 
-from service_quota_manager.service_quota import ServiceQuota
-from service_quota_manager.service_quota_collector import ServiceQuotaCollector
-from service_quota_manager.service_quota_increase_rule import ServiceQuotaIncreaseRule
-from service_quota_manager.service_quota_increaser import ServiceQuotaIncreaser
-from service_quota_manager.util import convert_dict
+from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
+from service_quotas_manager.service_quotas_collector import ServiceQuotasCollector
+from service_quotas_manager.service_quotas_increaser import ServiceQuotasIncreaser
+from service_quotas_manager.util import convert_dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -97,7 +96,7 @@ def handler(event, _context):
         remote_cloudwatch_client = boto3.client("cloudwatch", **client_credentials)
         remote_config_client = boto3.client("config", **client_credentials)
 
-        sqc = ServiceQuotaCollector(
+        sqc = ServiceQuotasCollector(
             remote_service_quota_client,
             remote_cloudwatch_client,
             remote_config_client,
@@ -126,5 +125,5 @@ def handler(event, _context):
         if increase_rule_def:
             increase_rule = ServiceQuotaIncreaseRule(**increase_rule_def)
 
-        sqi = ServiceQuotaIncreaser(remote_support_client, remote_service_quota_client)
+        sqi = ServiceQuotasIncreaser(remote_support_client, remote_service_quota_client)
         sqi.request_service_quota_increase(service_quota, increase_rule)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -22,3 +22,13 @@ class ServiceQuota:
     quota_applied_at_level: str = ""
     quota_context: Dict = field(default_factory=lambda: {})
     usage_metric: Dict = field(default_factory=lambda: {})
+
+
+@dataclass
+class ServiceQuotaIncreaseRule:
+    cc_mail_addresses: List[str]
+    motivation: str
+    quota_name: str
+    service_name: str
+    factor: Optional[float] = None
+    step: Optional[float] = None

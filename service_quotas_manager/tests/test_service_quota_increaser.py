@@ -1,14 +1,13 @@
 from botocore.stub import Stubber
 
-from service_quota_manager.service_quota import ServiceQuota
-from service_quota_manager.service_quota_increase_rule import ServiceQuotaIncreaseRule
-from service_quota_manager.service_quota_increaser import ServiceQuotaIncreaser
-from service_quota_manager.util import convert_dict
+from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
+from service_quotas_manager.service_quotas_increaser import ServiceQuotasIncreaser
+from service_quotas_manager.util import convert_dict
 
 
 class TestServiceQuotaIncreaser:
     def test_can_request_service_quota_increase(self, support, service_quotas, service_quotas_list_applied_quotas_lambda):
-        increaser = ServiceQuotaIncreaser(support, service_quotas)
+        increaser = ServiceQuotasIncreaser(support, service_quotas)
         service_quota = ServiceQuota(
             **convert_dict(service_quotas_list_applied_quotas_lambda["Quotas"][0])
         )

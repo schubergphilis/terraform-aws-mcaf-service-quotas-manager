@@ -1,8 +1,8 @@
 from botocore.stub import ANY, Stubber
 
-from service_quota_manager.service_quota import ServiceQuota
-from service_quota_manager.service_quota_collector import ServiceQuotaCollector
-from service_quota_manager.util import convert_dict
+from service_quotas_manager.entities import ServiceQuota
+from service_quotas_manager.service_quotas_collector import ServiceQuotasCollector
+from service_quotas_manager.util import convert_dict
 
 
 class TestServiceQuotaCollector:
@@ -13,7 +13,7 @@ class TestServiceQuotaCollector:
         aws_config,
         service_quotas_list_applied_quotas_lambda,
     ):
-        collector = ServiceQuotaCollector(
+        collector = ServiceQuotasCollector(
             service_quotas, cloudwatch, aws_config, cloudwatch, "123456789000"
         )
 
@@ -100,7 +100,7 @@ class TestServiceQuotaCollector:
         service_quotas_list_default_quotas_lambda,
         service_quotas_list_applied_quotas_lambda,
     ):
-        collector = ServiceQuotaCollector(
+        collector = ServiceQuotasCollector(
             service_quotas, cloudwatch, aws_config, cloudwatch, "123456789000"
         )
 

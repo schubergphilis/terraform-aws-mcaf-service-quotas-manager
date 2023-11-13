@@ -1,8 +1,8 @@
-# Service Quota Manager
+# Service Quotas Manager
 
 :warning: **This is still a work in progress and not ready to be used yet!**
 
-This Service Quota Manager can be installed as part as an AWS Organization or individual account to manage service quotas and become (more) demonstrably in control of them. It currently supports the following:
+This Service Quotas Manager can be installed as part as an AWS Organization or individual account to manage service quotas and become (more) demonstrably in control of them. It currently supports the following:
 
 1. Collection of service quotas and metrics per configured account, storing usage metrics centrally. Usage metrics can be derived from CloudWatch or AWS Config. The latter obviously requires AWS Config to be enabled in your target account.
 

@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from typing import Dict, List
 from unittest import TestCase
 
-from service_quota_manager.service_quota import ServiceQuota
-from service_quota_manager.util import convert_dict
+from service_quotas_manager.entities import ServiceQuota
+from service_quotas_manager.util import convert_dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -15,7 +15,7 @@ LOCAL_METRIC_NAMESPACE = "ServiceQuotaManager"
 LOCAL_METRIC_NAME = "ServiceQuotaUsage"
 
 
-class ServiceQuotaCollector:
+class ServiceQuotasCollector:
     def __init__(
         self,
         remote_service_quota_client,
@@ -32,7 +32,7 @@ class ServiceQuotaCollector:
 
         self._service_quotas: List[ServiceQuota] = []
         self._custom_collection_queries = json.load(
-            open("service_quota_manager/custom_collection_queries.json")
+            open("service_quotas_manager/custom_collection_queries.json")
         )
 
     def collect(self, selected_services: List[str]) -> Dict:
