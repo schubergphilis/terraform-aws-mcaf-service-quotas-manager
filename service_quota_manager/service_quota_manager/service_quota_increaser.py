@@ -36,6 +36,10 @@ class ServiceQuotaIncreaser:
                 DesiredValue=desired_value,
             )
         )
+        logger.info(
+            f"Quota increase for {service_quota.service_name} / {service_quota.quota_name} has been requested in case {requested_quota['RequestedQuota']['CaseId']}"
+        )
+
         self._update_support_case(
             requested_quota["RequestedQuota"]["CaseId"],
             increase_config.motivation,
@@ -50,6 +54,7 @@ class ServiceQuotaIncreaser:
             communicationBody=motivation,
             ccEmailAddresses=cc_mail_addresses,
         )
+        logger.info(f"Case {case_id} has been updated with a motivation.")
 
     def _check_preconditions(
         self, service_quota: ServiceQuota, increase_config: ServiceQuotaIncreaseRule

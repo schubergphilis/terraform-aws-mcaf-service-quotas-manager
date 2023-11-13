@@ -1,13 +1,12 @@
 import json
 import logging
-import random
-import string
 import time
 from datetime import datetime, timedelta
 from typing import Dict, List
 from unittest import TestCase
 
-from .service_quota import ServiceQuota
+from service_quota_manager.service_quota import ServiceQuota
+from service_quota_manager.util import convert_dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -23,7 +22,7 @@ class ServiceQuotaCollector:
         remote_cloudwatch_client,
         remote_config_client,
         local_cloudwatch_client,
-        account_id,
+        account_id: str,
     ):
         self.remote_service_quota_client = remote_service_quota_client
         self.remote_cloudwatch_client = remote_cloudwatch_client
@@ -118,7 +117,10 @@ class ServiceQuotaCollector:
 
     def _upsert_alarms(self, alerting_config: Dict, alarms_by_service_quota: Dict):
         for service_quota in self._service_quotas:
-            if len(service_quota.metric_values) == 0:
+            if not service_quota.metric_values:
+                logger.info(
+                    f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing metrics."
+                )
                 continue
 
             service_quota_key = f"{service_quota.service_code}#{service_quota.quota_code}#{self.account_id}"
@@ -132,13 +134,13 @@ class ServiceQuotaCollector:
                 threshold_perc = alerting_config["default_threshold_perc"]
 
             threshold = round((service_quota.value * threshold_perc) / 100, 1)
-            description = f"The service quota for {service_quota.quota_name} for service {service_quota.quota_name} in account {self.account_id} is nearing its configured quota ({service_quota.value})."
+            description = f"The service quota for {service_quota.quota_name} for service {service_quota.service_name} in account {self.account_id} is nearing its configured quota ({service_quota.value})."
 
             if service_quota.adjustable:
                 description += " This quota is adjustable."
 
             desired_alarm_definition = {
-                "AlarmName": f"Service Quota: {service_quota.quota_name} for service {service_quota.service_name} in account {self.account_id} is in alarm.",
+                "AlarmName": f"Service Quota: {service_quota.quota_name} for service {service_quota.service_name} in account {self.account_id}",
                 "AlarmDescription": description,
                 "MetricName": LOCAL_METRIC_NAME,
                 "Namespace": LOCAL_METRIC_NAMESPACE,
@@ -158,7 +160,7 @@ class ServiceQuotaCollector:
                 "ComparisonOperator": "GreaterThanThreshold",
             }
 
-            if alerting_config["notification_topic_arn"]:
+            if "notification_topic_arn" in alerting_config:
                 desired_alarm_definition["AlarmActions"] = [
                     alerting_config["notification_topic_arn"]
                 ]
@@ -196,10 +198,21 @@ class ServiceQuotaCollector:
         services_pages = services_paginator.paginate()
 
         filtered_services = []
+        matched_services = []
         for service_page in services_pages:
             for service in service_page["Services"]:
                 if service["ServiceName"] in selected_services:
                     filtered_services.append(service)
+                    matched_services.append(service["ServiceName"])
+
+        unmatched_services = [
+            sn for sn in selected_services if sn not in matched_services
+        ]
+        if unmatched_services:
+            logger.warning(
+                f"The following services do not seem to exist: {', '.join(unmatched_services)}. Maybe you used the service code instead of the service name?"
+            )
+
         return filtered_services
 
     def _find_service_quotas(self, service_code: str) -> List[ServiceQuota]:
@@ -231,6 +244,7 @@ class ServiceQuotaCollector:
                 ] = applied_service_quota
 
         service_quotas = []
+        id_cntr = 0
         for service_quota_page in default_service_quota_pages:
             for service_quota in service_quota_page["Quotas"]:
                 if service_quota["QuotaCode"] in applied_service_quotas_by_id:
@@ -238,11 +252,10 @@ class ServiceQuotaCollector:
                         service_quota["QuotaCode"]
                     ]
 
-                service_quota = ServiceQuota(**service_quota)
+                service_quota = ServiceQuota(**convert_dict(service_quota))
 
-                service_quota.internal_id = "".join(
-                    random.choice(string.ascii_lowercase) for _ in range(10)
-                )
+                service_quota.internal_id = f"{id_cntr:05}"
+                id_cntr += 1
                 service_quotas.append(service_quota)
         return service_quotas
 
@@ -328,6 +341,10 @@ class ServiceQuotaCollector:
 
     def _put_local_metrics(self, service_quota_group: List[ServiceQuota]) -> None:
         current_time = datetime.now()
+        service_quotas_with_values = [
+            sq for sq in service_quota_group if sq.metric_values
+        ]
+
         self.local_cloudwatch_client.put_metric_data(
             Namespace=LOCAL_METRIC_NAMESPACE,
             MetricData=[
@@ -340,9 +357,13 @@ class ServiceQuotaCollector:
                         {"Name": "QuotaCode", "Value": service_quota.quota_code},
                     ],
                     "Timestamp": current_time,
-                    "Value": service_quota["MetricValues"][0],
+                    "Value": service_quota.metric_values[0],
                 }
-                for service_quota in service_quota_group
-                if len(service_quota["MetricValues"]) > 0
+                for service_quota in service_quotas_with_values
             ],
         )
+
+        for service_quota in service_quotas_with_values:
+            logger.info(
+                f"Stored metric values for quota {service_quota.service_name} / {service_quota.quota_name}: {service_quota.metric_values[0]}"
+            )

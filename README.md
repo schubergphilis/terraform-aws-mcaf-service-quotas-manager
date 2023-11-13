@@ -2,7 +2,7 @@
 
 :warning: **This is still a work in progress and not ready to be used yet!**
 
-This Service Quota Manager can be installed as part as an AWS Organization or individual account to manage service quotas and become (more) demonstrably in control of your service quotas. It currently supports the following:
+This Service Quota Manager can be installed as part as an AWS Organization or individual account to manage service quotas and become (more) demonstrably in control of them. It currently supports the following:
 
 1. Collection of service quotas and metrics per configured account, storing usage metrics centrally. Usage metrics can be derived from CloudWatch or AWS Config. The latter obviously requires AWS Config to be enabled in your target account.
 
@@ -27,7 +27,7 @@ This Service Quota Manager can be installed as part as an AWS Organization or in
 ### Target Accounts
 
 #### Roles
-This manager works by assuming roles in your target accounts from a single central management account to collect applied service quotas and usage metrics. Every account you want to be managed requires a role that can be assumed by the service quota manager. Setting up these roles is not part of this solution and could be part of your account baseline.
+This manager works by assuming roles in your target accounts from a single central management account to collect applied service quotas and usage metrics. Every account you want to be managed requires a role that can be assumed by the service quota manager. Setting up these roles is not part of this solution but could be part of - for example - your account baseline.
 
 Each role requires the following trust policy:
 
@@ -39,7 +39,7 @@ Each role requires the following trust policy:
 			"Sid": "AllowServiceQuotaManager",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<manager_account_id>:role/<service_quota_manager_lambda_role_arn>"
+				"AWS": "arn:aws:iam::<manager_account_id>:role/<service_quota_manager_lambda_role_name>"
 			},
 			"Action": "sts:AssumeRole"
 		}

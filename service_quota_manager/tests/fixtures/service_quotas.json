@@ -1,6 +1,6 @@
 {
     "list_services": {
-        "case_a": {
+        "all": {
             "Services": [
                 {
                     "ServiceCode": "lambda",

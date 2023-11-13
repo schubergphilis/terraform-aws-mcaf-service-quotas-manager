@@ -5,10 +5,11 @@ from typing import Dict, Optional
 import boto3
 from botocore.exceptions import ClientError
 
-from .service_quota import ServiceQuota
-from .service_quota_collector import ServiceQuotaCollector
-from .service_quota_increase_rule import ServiceQuotaIncreaseRule
-from .service_quota_increaser import ServiceQuotaIncreaser
+from service_quota_manager.service_quota import ServiceQuota
+from service_quota_manager.service_quota_collector import ServiceQuotaCollector
+from service_quota_manager.service_quota_increase_rule import ServiceQuotaIncreaseRule
+from service_quota_manager.service_quota_increaser import ServiceQuotaIncreaser
+from service_quota_manager.util import convert_dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -52,15 +53,21 @@ def _get_service_quota_from_alarm(
     ]
     try:
         return ServiceQuota(
-            **remote_service_quota_client.get_service_quota(
-                ServiceCode=dimensions["ServiceCode"], QuotaCode=dimensions["QuotaCode"]
-            )["Quota"]
+            **convert_dict(
+                remote_service_quota_client.get_service_quota(
+                    ServiceCode=dimensions["ServiceCode"],
+                    QuotaCode=dimensions["QuotaCode"],
+                )["Quota"]
+            )
         )
     except ClientError:
         return ServiceQuota(
-            **remote_service_quota_client.get_aws_default_service_quota(
-                ServiceCode=dimensions["ServiceCode"], QuotaCode=dimensions["QuotaCode"]
-            )["Quota"]
+            **convert_dict(
+                remote_service_quota_client.get_aws_default_service_quota(
+                    ServiceCode=dimensions["ServiceCode"],
+                    QuotaCode=dimensions["QuotaCode"],
+                )["Quota"]
+            )
         )
 
 
