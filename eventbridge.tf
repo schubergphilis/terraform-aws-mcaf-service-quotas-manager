@@ -77,7 +77,7 @@ resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
 }
 
 resource "aws_iam_role" "service_quota_manager_schedules" {
-  name = "ServiceQuotaManagerSchedulerRole"
+  name = "ServiceQuotaManagerSchedulerRole-${data.aws_region.current.name}"
 
   assume_role_policy = templatefile("${path.module}/templates/service_quota_manager_scheduler_assume_role_policy.json", {
     account_id = data.aws_caller_identity.current.account_id
@@ -85,7 +85,7 @@ resource "aws_iam_role" "service_quota_manager_schedules" {
 }
 
 resource "aws_iam_policy" "service_quota_manager_schedules" {
-  name = "ServiceQuotaManagerSchedulerPolicy"
+  name = "ServiceQuotaManagerSchedulerPolicy-${data.aws_region.current.name}"
   path = "/"
   policy = templatefile("${path.module}/templates/service_quota_manager_scheduler_policy.json.tpl", {
     service_quota_manager_lambda_arn = module.service_quota_manager_lambda.arn
