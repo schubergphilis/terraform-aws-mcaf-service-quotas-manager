@@ -12,7 +12,6 @@ sample
 **/terraform.tfstate
 **/.terraform/**
 **/htmlcov/**
-*.toml
 .DS_Store
 .bashrc
 .ruff_cache

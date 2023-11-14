@@ -1,0 +1,8 @@
+# Enable flake8-bugbear (`B`) rules.
+# I001 = isort replacement
+select = ["B", "C", "E", "F", "W", "B9","I001"]
+fix = true
+ignore = [ "E501", "B005", "B006", "B008", "B018", "B020", "B904"]
+line-length = 88
+[mccabe]
+max-complexity = 12

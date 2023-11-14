@@ -28,7 +28,7 @@ jobs:
 
         - name: Lint application code
           working-directory: ./service_quotas_manager
-          run: pipenv run ruff check --config .ruff.toml .
+          run: pipenv run ruff check .
 
     lint-infrastructure-code:
       name: Lint infrastructure code
