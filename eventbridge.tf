@@ -16,6 +16,8 @@ resource "aws_cloudwatch_event_rule" "trigger_service_quotas_manager_on_alarm" {
       }
     }
   })
+
+  tags = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "trigger_service_quotas_manager_on_alarm" {
@@ -49,6 +51,7 @@ resource "aws_lambda_permission" "trigger_service_quotas_manager_on_alarm" {
 
 resource "aws_scheduler_schedule_group" "service_quotas_manager" {
   name = "ServiceQuotaManager"
+  tags = var.tags
 }
 
 resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
@@ -82,6 +85,8 @@ resource "aws_iam_role" "service_quotas_manager_schedules" {
   assume_role_policy = templatefile("${path.module}/templates/service_quotas_manager_scheduler_assume_role_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id
   })
+
+  tags = var.tags
 }
 
 resource "aws_iam_policy" "service_quotas_manager_schedules" {
@@ -90,6 +95,7 @@ resource "aws_iam_policy" "service_quotas_manager_schedules" {
   policy = templatefile("${path.module}/templates/service_quotas_manager_scheduler_policy.json.tpl", {
     service_quotas_manager_lambda_arn = module.service_quotas_manager_lambda.arn
   })
+  tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "service_quotas_manager_schedules" {

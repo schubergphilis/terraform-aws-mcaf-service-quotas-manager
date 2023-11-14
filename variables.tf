@@ -36,3 +36,9 @@ variable "schedule_timezone" {
   type        = string
   default     = "Europe/Amsterdam"
 }
+
+variable "tags" {
+  description = "Tags to assign to resources created by this module"
+  type        = map(string)
+  default     = {}
+}

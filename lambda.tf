@@ -17,11 +17,13 @@ module "service_quotas_manager_lambda" {
   role_arn      = aws_iam_role.service_quotas_manager_execution_role.arn
   runtime       = "python3.11"
   timeout       = 180
+  tags          = var.tags
 }
 
 resource "aws_iam_role" "service_quotas_manager_execution_role" {
   name               = "ServiceQuotaManagerExecutionRole-${data.aws_region.current.name}"
   assume_role_policy = file("${path.module}/templates/lambda_assume_role_policy.json")
+  tags               = var.tags
 }
 
 resource "aws_iam_role_policy" "service_quotas_manager_execution_policy" {
