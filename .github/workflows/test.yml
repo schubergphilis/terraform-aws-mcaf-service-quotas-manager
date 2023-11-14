@@ -28,4 +28,4 @@ jobs:
 
         - name: Test application code
           working-directory: ./service_quotas_manager
-          run: pipenv run python3 -m pytest tests -x -rP
+          run: pipenv run python3 -m pytest tests --cov=service_quotas_manager -x -rP
