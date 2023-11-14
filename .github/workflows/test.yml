@@ -1,5 +1,5 @@
 ---
-name: "Lint and Format"
+name: "Test"
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
   pull_request:
 
 jobs:
-    lint-application-code:
-      name: Lint application code
+    test-application-code:
+      name: Test application code
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
@@ -26,17 +26,6 @@ jobs:
           working-directory: ./service_quotas_manager
           run: pipenv install --dev
 
-        - name: Lint application code
+        - name: Test application code
           working-directory: ./service_quotas_manager
-          run: pipenv run ruff check --config .ruff.toml .
-
-    lint-infrastructure-code:
-      name: Lint infrastructure code
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-
-        - uses: hashicorp/setup-terraform@v2
-
-        - name: Lint infrastructure code
-          run: terraform fmt -diff -check .
+          run: pipenv run python3 -m pytest tests -x -rP
