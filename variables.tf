@@ -4,7 +4,7 @@ variable "bucket_prefix" {
   default     = ""
 }
 
-variable "quota_manager_configuration" {
+variable "quotas_manager_configuration" {
   description = "The configuration for the service quota manager"
   type = map(object({
     role_name         = string

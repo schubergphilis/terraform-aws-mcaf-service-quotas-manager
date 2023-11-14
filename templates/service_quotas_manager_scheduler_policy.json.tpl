@@ -7,7 +7,7 @@
                 "lambda:InvokeFunction"
             ],
             "Resource": [
-                "${service_quota_manager_lambda_arn}"
+                "${service_quotas_manager_lambda_arn}"
             ]
         }
     ]

@@ -37,7 +37,7 @@
             "Action": [
                 "s3:GetObject"
             ],
-            "Resource": "${service_quota_manager_bucket_arn}/*"
+            "Resource": "${service_quotas_manager_bucket_arn}/*"
         }
     ]
 }

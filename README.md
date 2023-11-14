@@ -43,7 +43,7 @@ Each role requires the following trust policy:
 			"Sid": "AllowServiceQuotaManager",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<manager_account_id>:role/<service_quota_manager_lambda_role_name>"
+				"AWS": "arn:aws:iam::<manager_account_id>:role/<service_quotas_manager_lambda_role_name>"
 			},
 			"Action": "sts:AssumeRole"
 		}
@@ -95,7 +95,7 @@ Each role requires the following permission policy:
 module "service_quotas_manager" {
   source = "github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v<version>"
 
-  quota_manager_configuration = {
+  quotas_manager_configuration = {
     "123456789000" = {
       role_name = "ServiceQuotaManagerRole"
       selected_services = [
