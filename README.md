@@ -39,7 +39,7 @@ Each role requires the following trust policy:
 {
 	"Version": "2012-10-17",
 	"Statement": [
-		{
+	  {
 			"Sid": "AllowServiceQuotaManager",
 			"Effect": "Allow",
 			"Principal": {
@@ -55,35 +55,35 @@ Each role requires the following permission policy:
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AllowCloudwatchMetricData",
-            "Effect": "Allow",
-            "Action": "cloudwatch:GetMetricData",
-            "Resource": "*"
-        },
-        {
-            "Sid": "AllowConfigReadAccess",
-            "Effect": "Allow",
-            "Action": "config:SelectResourceConfig",
-            "Resource": "*"
-        },
-        {
-            "Sid": "AllowServiceQuotaAccess",
-            "Effect": "Allow",
-            "Action": [
-                "servicequotas:ListServices",
-                "servicequotas:GetServiceQuota",
-                "servicequotas:ListAWSDefaultServiceQuotas",
-                "servicequotas:RequestServiceQuotaIncrease",
-                "servicequotas:ListRequestedServiceQuotaChangeHistoryByQuota",
-                "servicequotas:ListServiceQuotas",
-                "servicequotas:GetAWSDefaultServiceQuota"
-            ],
-            "Resource": "*"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCloudwatchMetricData",
+      "Effect": "Allow",
+      "Action": "cloudwatch:GetMetricData",
+        "Resource": "*"
+    },
+    {
+      "Sid": "AllowConfigReadAccess",
+      "Effect": "Allow",
+      "Action": "config:SelectResourceConfig",
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowServiceQuotaAccess",
+      "Effect": "Allow",
+      "Action": [
+          "servicequotas:ListServices",
+          "servicequotas:GetServiceQuota",
+          "servicequotas:ListAWSDefaultServiceQuotas",
+          "servicequotas:RequestServiceQuotaIncrease",
+          "servicequotas:ListRequestedServiceQuotaChangeHistoryByQuota",
+          "servicequotas:ListServiceQuotas",
+          "servicequotas:GetAWSDefaultServiceQuota"
+      ],
+      "Resource": "*"
+    }
+  ]
 }
 ```
 
@@ -91,7 +91,35 @@ Each role requires the following permission policy:
 
 #### Installation
 
-TBD
+```HCL
+module "service_quotas_manager" {
+  source = "github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v<version>"
+
+  quota_manager_configuration = {
+    "123456789000" = {
+      role_name = "ServiceQuotaManagerRole"
+      selected_services = [
+        "AWS Lambda",
+      ]
+      alerting_config = {
+        default_threshold_perc = 75
+        notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
+      }
+    }
+    "123456789001" = {
+      role_name = "ServiceQuotaManagerRole"
+      selected_services = [
+        "Amazon Virtual Private Cloud (Amazon VPC)",
+        "Amazon DynamoDB"
+      ]
+      alerting_config = {
+        default_threshold_perc = 75
+        notification_topic_arn = "arn:aws:sns:eu-west-1:123456789001:service-quotas-manager-notifications"
+      }
+    }
+  }
+}
+```
 
 #### Configuration
 
