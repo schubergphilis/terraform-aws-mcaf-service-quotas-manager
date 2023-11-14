@@ -35,7 +35,7 @@ This manager works by assuming roles in your target accounts from a single centr
 
 Each role requires the following trust policy:
 
-```
+```json
 {
 	"Version": "2012-10-17",
 	"Statement": [
@@ -53,7 +53,7 @@ Each role requires the following trust policy:
 
 Each role requires the following permission policy:
 
-```
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -99,7 +99,7 @@ See below for a sample configuration for a single account that can be passed on 
 
 * Service and quota names are as shown in the Service Quotas Console. They can be copy pasted.
 
-```
+```HCL
 {
   "123456789000" = {
     role_name = "ServiceQuotaManagerRole"
@@ -129,6 +129,28 @@ See below for a sample configuration for a single account that can be passed on 
           cc_mail_addresses = ["devops_engineer@acme.com"]
         }
       }
+    }
+  }
+}
+```
+
+The example below is a minimal monitor-only configuration for a single account:
+
+```HCL
+{
+  "123456789000" = {
+    role_name = "ServiceQuotaManagerRole"
+    selected_services = [
+      "Amazon Virtual Private Cloud (Amazon VPC)",
+      "Amazon Elastic Compute Cloud (Amazon EC2)",
+      "AWS Lambda",
+      "Amazon Elastic File System (EFS)",
+      "Amazon DynamoDB",
+      "Amazon Simple Storage Service (Amazon S3)"
+    ]
+    alerting_config = {
+      default_threshold_perc = 75
+      notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
     }
   }
 }
