@@ -146,12 +146,40 @@ class TestServiceQuotaCollector:
                         "MetricName": "ServiceQuotaUsage",
                         "Timestamp": ANY,
                         "Value": 1.0,
-                    }
+                    },
+                    {
+                        "Dimensions": [
+                            {"Name": "AccountId", "Value": "123456789000"},
+                            {"Name": "ServiceCode", "Value": "lambda"},
+                            {
+                                "Name": "QuotaName",
+                                "Value": "Function and layer storage",
+                            },
+                            {"Name": "QuotaCode", "Value": "L-9FEE3D26"},
+                        ],
+                        "MetricName": "ServiceQuotaUsage",
+                        "Timestamp": ANY,
+                        "Value": 120.0,
+                    },
                 ],
                 "Namespace": "ServiceQuotaManager",
             },
         )
         stubbed_cloudwatch.activate()
+
+        stubbed_aws_config = Stubber(aws_config)
+        stubbed_aws_config.add_response(
+            "select_resource_config",
+            {
+                "Results": ['{"COUNT(*)":120}'],
+                "QueryInfo": {"SelectFields": [{"Name": "COUNT(*)"}]},
+            },
+            {
+                "Expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'",
+                "Limit": 1,
+            },
+        )
+        stubbed_aws_config.activate()
 
         collector.collect(["AWS Lambda"])
 

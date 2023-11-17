@@ -62,8 +62,8 @@
                 {
                     "ServiceCode": "lambda",
                     "ServiceName": "AWS Lambda",
-                    "QuotaArn": "arn:aws:servicequotas:eu-west-1::lambda/L-2ACBD22F",
-                    "QuotaCode": "L-2ACBD22F",
+                    "QuotaArn": "arn:aws:servicequotas:eu-west-1::lambda/L-9FEE3D26",
+                    "QuotaCode": "L-9FEE3D26",
                     "QuotaName": "Function and layer storage",
                     "Value": 75.0,
                     "Unit": "Gigabytes",

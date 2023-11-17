@@ -20,7 +20,7 @@ This Service Quotas Manager can be installed as part as an AWS Organization or i
 
 * To support collection of usage metrics from AWS Config, AWS Config needs to be enabled in every target account in your organization. This is usually the case in enterprise organizations.
 
-* To support automated motivation updates on service quota increase support tickets, at least AWS Business Support is required.
+* To support automated quota increase requests at least AWS Business Support is required.
 
 * This service quota manager relies on custom CloudWatch metrics ($0.30/metric/month) and CloudWatch alarms ($0.10/alarm/month). Services to monitor are configurable; more services monitored means increased cost.
 
@@ -67,6 +67,15 @@ Each role requires the following permission policy:
       "Sid": "AllowConfigReadAccess",
       "Effect": "Allow",
       "Action": "config:SelectResourceConfig",
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowSupportAccess",
+      "Effect": "Allow",
+      "Action": [
+        "support:DescribeSeverityLevels",
+        "support:AddCommunicationToCase"
+      ],
       "Resource": "*"
     },
     {

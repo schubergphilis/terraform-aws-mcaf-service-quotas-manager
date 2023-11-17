@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+from botocore.exceptions import ClientError
+
 from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
 
 logger = logging.getLogger()
@@ -73,6 +75,20 @@ class ServiceQuotasIncreaser:
                 f"Quota {service_quota.quota_name} for service {service_quota.service_name} has no increase configuration. Exiting..."
             )
             return False
+
+        # Check whether this account has business support enabled. Without business support
+        # the support API can not be used and case motivation can not be given. In these cases
+        # it's better to not perform increase requests at all and let that be manual activity.
+        try:
+            self.remote_support_client.describe_severity_levels()
+        except ClientError as ex:
+            if ex.response["Error"]["Code"] == "SubscriptionRequiredException":
+                logger.error(
+                    "This account has no valid support plan to use the Support API. A quota increase request could not be placed."
+                )
+                return False
+            else:
+                raise ex
 
         # Check whether there's no open increase cases.
         # Makes no sense to try to increase a quota if you already asked.
