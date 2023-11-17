@@ -29,14 +29,3 @@ jobs:
         - name: Lint application code
           working-directory: ./service_quotas_manager
           run: pipenv run ruff check .
-
-    lint-infrastructure-code:
-      name: Lint infrastructure code
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-
-        - uses: hashicorp/setup-terraform@v2
-
-        - name: Lint infrastructure code
-          run: terraform fmt -diff -check .
