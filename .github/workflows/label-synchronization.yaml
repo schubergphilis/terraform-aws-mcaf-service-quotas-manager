@@ -1,0 +1,28 @@
+name: label-synchronization
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - .github/labels.yaml
+      - .github/workflows/label-sync.yaml
+
+permissions:
+  # write permission is required to edit issue labels
+  issues: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Synchronize labels
+        uses: crazy-max/ghaction-github-labeler@v5
+        with:
+          dry-run: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          skip-delete: false
+          yaml-file: .github/labels.yaml
