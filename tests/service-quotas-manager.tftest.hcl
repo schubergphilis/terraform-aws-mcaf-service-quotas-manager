@@ -23,17 +23,17 @@ run "basic" {
   }
 
   assert {
-    condition = length(aws_scheduler_schedule.sqm_collect_service_quotas) == 1
+    condition     = length(aws_scheduler_schedule.sqm_collect_service_quotas) == 1
     error_message = "Expected 1 schedule per monitored account to be created."
   }
 
   assert {
-    condition = length(aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm) == 0
+    condition     = length(aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm) == 0
     error_message = "Expected no event rules for alarms if no increase config was defined."
   }
 
   assert {
-    condition = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
+    condition     = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
     error_message = "Expected the service quota manager to only assume a role in configured target accounts."
   }
 }
@@ -66,8 +66,8 @@ run "increase_config" {
         quota_increase_config = {
           "AWS Lambda" = {
             "Elastic network interfaces per VPC" = {
-              step = 50
-              motivation = "We run a serverless integration platform that heavily relies on AWS Lambda. This account is a development account and we allow our developers to run feature environments to test the integrations they build in an isolated setting. In order to be able to grow the number of feature environments in this account we would like to request this quote increase. 50 Additional ENI's allow for running 1 additional feature environment, while limiting it to run on only a single AZ."
+              step              = 50
+              motivation        = "We run a serverless integration platform that heavily relies on AWS Lambda. This account is a development account and we allow our developers to run feature environments to test the integrations they build in an isolated setting. In order to be able to grow the number of feature environments in this account we would like to request this quote increase. 50 Additional ENI's allow for running 1 additional feature environment, while limiting it to run on only a single AZ."
               cc_mail_addresses = ["devops_engineer@acme.com"]
             }
           }
@@ -77,17 +77,17 @@ run "increase_config" {
   }
 
   assert {
-    condition = length(aws_scheduler_schedule.sqm_collect_service_quotas) == 1
+    condition     = length(aws_scheduler_schedule.sqm_collect_service_quotas) == 1
     error_message = "Expected 1 schedule per monitored account to be created."
   }
 
   assert {
-    condition = length(aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm) == 1
+    condition     = length(aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm) == 1
     error_message = "Expected one event rule for alarms if no increase config was defined."
   }
 
   assert {
-    condition = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
+    condition     = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
     error_message = "Expected the service quota manager to only assume a role in configured target accounts."
   }
 }
@@ -122,17 +122,17 @@ run "multi_account" {
   }
 
   assert {
-    condition = length(aws_scheduler_schedule.sqm_collect_service_quotas) == 2
+    condition     = length(aws_scheduler_schedule.sqm_collect_service_quotas) == 2
     error_message = "Expected 1 schedule per monitored account to be created."
   }
 
   assert {
-    condition = length(aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm) == 0
+    condition     = length(aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm) == 0
     error_message = "Expected one event rule for alarms if no increase config was defined."
   }
 
   assert {
-    condition = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 2
+    condition     = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 2
     error_message = "Expected the service quota manager to only assume a role in configured target accounts."
   }
 }
