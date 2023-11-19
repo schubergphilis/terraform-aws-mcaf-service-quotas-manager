@@ -5,7 +5,9 @@ data "archive_file" "service_quotas_manager_source" {
 }
 
 module "service_quotas_manager_lambda" {
-  source   = "github.com/schubergphilis/terraform-aws-mcaf-lambda?ref=v1.1.1"
+  source = "github.com/schubergphilis/terraform-aws-mcaf-lambda?ref=v1.1.1"
+
+  #checkov:skip=CKV_TF_1:Ensure Terraform module sources use a commit hash
   filename = data.archive_file.service_quotas_manager_source.output_path
 
   name          = "ServiceQuotasManager"

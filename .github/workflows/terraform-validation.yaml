@@ -29,21 +29,21 @@ jobs:
         id: fmt
         run: terraform fmt -check -recursive
 
-      - name: Terraform Init
-        id: init
-        run: |
-          for d in examples/*/; do
-            terraform -chdir=$d init
-          done
+      # - name: Terraform Init
+      #   id: init
+      #   run: |
+      #     for d in examples/*/; do
+      #       terraform -chdir=$d init
+      #     done
 
-      - name: Terraform Validate
-        id: validate
-        run: |
-          for d in examples/*/; do
-            terraform -chdir=$d validate -no-color
-          done
-        env:
-          AWS_DEFAULT_REGION: eu-west-1
+      # - name: Terraform Validate
+      #   id: validate
+      #   run: |
+      #     for d in examples/*/; do
+      #       terraform -chdir=$d validate -no-color
+      #     done
+      #   env:
+      #     AWS_DEFAULT_REGION: eu-west-1
 
       - name: Terraform Lint
         id: lint

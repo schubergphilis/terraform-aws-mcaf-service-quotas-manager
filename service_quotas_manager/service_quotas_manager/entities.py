@@ -26,9 +26,8 @@ class ServiceQuota:
 
 @dataclass
 class ServiceQuotaIncreaseRule:
+    service_quota: ServiceQuota
     cc_mail_addresses: List[str]
     motivation: str
-    quota_name: str
-    service_name: str
     factor: Optional[float] = None
     step: Optional[float] = None

@@ -28,7 +28,7 @@ To ease local development, [pre-commit](https://pre-commit.com/) configuration h
 To use it, follow these steps:
 
 1. Installation:
-    - Using Brew: `brew install tflint`
+    - Using Brew: `brew install pre-commit`
     - Using Python: `pip3 install pre-commit --upgrade`
     - Using Conda: `conda install -c conda-forge pre-commit`
 
@@ -37,3 +37,20 @@ To use it, follow these steps:
 
 3. (optional) Install the pre-commit hooks to run before each commit:
 `pre-commit install`
+
+### Tests
+
+Both the service quotas manager and the infrastructure has tests
+defined. To run the infrastructure tests:
+
+- Make sure you have Terraform > 1.6.0 installed.
+- Make sure you have AWS credentials configured for an AWS test account.
+- Run the tests by executing `terraform test`.
+
+The infrastructure tests run using an `apply`. It will deploy all resources, run some assertions and then remove all resources again.
+
+To run tests on the service quotas manager:
+
+- `cd service_quotas_manager`
+- Install development dependencies: `pip install --dev`
+- Run the tests: `pipenv run python3 -m pytest tests --cov=service_quotas_manager`

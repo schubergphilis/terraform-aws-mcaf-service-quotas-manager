@@ -269,6 +269,9 @@ class ServiceQuotasCollector:
             )
 
             if len(expression_result.get("Results", [])) == 0:
+                logger.info(
+                    f"The AWS config query ({collection_params['expression']}) yielded no results."
+                )
                 service_quota.metric_values = []
                 continue
 

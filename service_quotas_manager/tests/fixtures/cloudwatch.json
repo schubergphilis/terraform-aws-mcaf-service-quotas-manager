@@ -1,7 +1,7 @@
 {
-    "get_metric_data": {},
-    "describe_alarms": {},
-    "delete_alarms": {},
-    "put_metric_alarm": {},
-    "put_metric_data": {}
+  "delete_alarms": {},
+  "describe_alarms": {},
+  "get_metric_data": {},
+  "put_metric_alarm": {},
+  "put_metric_data": {}
 }

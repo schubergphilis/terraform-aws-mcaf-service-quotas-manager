@@ -28,7 +28,7 @@
                 "cloudwatch:PutMetricData",
                 "cloudwatch:DeleteAlarms",
                 "cloudwatch:DescribeAlarms",
-                "cloudwatch:PutMetricAlarm",
+                "cloudwatch:PutMetricAlarm"
             ],
             "Resource": "*"
         },

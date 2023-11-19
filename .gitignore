@@ -15,3 +15,6 @@ sample
 .DS_Store
 .bashrc
 .ruff_cache
+htmlcov
+.external_modules
+.terraform.lock.hcl
