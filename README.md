@@ -1,7 +1,5 @@
 # Service Quotas Manager
 
-:warning: **This is still a work in progress and not ready to be used yet!**
-
 ![tests](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/actions/workflows/test.yml/badge.svg)
 
 ![Solution Architecture](./docs/architecture.png)

@@ -3,7 +3,7 @@ from typing import List
 
 from botocore.exceptions import ClientError
 
-from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
+from service_quotas_manager.entities import ServiceQuotaIncreaseRule
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -15,36 +15,36 @@ class ServiceQuotasIncreaser:
         self.remote_service_quota_client = remote_service_quota_client
 
     def request_service_quota_increase(
-        self, service_quota: ServiceQuota, increase_config: ServiceQuotaIncreaseRule
+        self, increase_rule: ServiceQuotaIncreaseRule
     ) -> None:
-        if not self._check_preconditions(service_quota, increase_config):
+        if not self._check_preconditions(increase_rule):
             return
 
-        desired_value = service_quota.value
-        if increase_config.step:
-            desired_value += float(increase_config.step)
-        elif increase_config.factor:
-            desired_value *= float(increase_config.factor)
+        desired_value = increase_rule.service_quota.value
+        if increase_rule.step:
+            desired_value += float(increase_rule.step)
+        elif increase_rule.factor:
+            desired_value *= float(increase_rule.factor)
 
         logger.info(
-            f"Filing a quota increase request for {service_quota.service_name} / {service_quota.quota_name} to increase quota to {desired_value}"
+            f"Filing a quota increase request for {increase_rule.service_quota.service_name} / {increase_rule.service_quota.quota_name} to increase quota to {desired_value}"
         )
 
         requested_quota = (
             self.remote_service_quota_client.request_service_quota_increase(
-                ServiceCode=service_quota.service_code,
-                QuotaCode=service_quota.quota_code,
+                ServiceCode=increase_rule.service_quota.service_code,
+                QuotaCode=increase_rule.service_quota.quota_code,
                 DesiredValue=desired_value,
             )
         )
         logger.info(
-            f"Quota increase for {service_quota.service_name} / {service_quota.quota_name} has been requested in case {requested_quota['RequestedQuota']['CaseId']}"
+            f"Quota increase for {increase_rule.service_quota.service_name} / {increase_rule.service_quota.quota_name} has been requested in case {requested_quota['RequestedQuota']['CaseId']}"
         )
 
         self._update_support_case(
             requested_quota["RequestedQuota"]["CaseId"],
-            increase_config.motivation,
-            increase_config.cc_mail_addresses,
+            increase_rule.motivation,
+            increase_rule.cc_mail_addresses,
         )
 
     def _update_support_case(
@@ -57,22 +57,20 @@ class ServiceQuotasIncreaser:
         )
         logger.info(f"Case {case_id} has been updated with a motivation.")
 
-    def _check_preconditions(
-        self, service_quota: ServiceQuota, increase_config: ServiceQuotaIncreaseRule
-    ) -> bool:
-        # Check whether the quota is adjustable and exit if it's not.
-        # Makes no sense to try to increase a non-adjustable quota.
-        if not service_quota.adjustable:
+    def _check_preconditions(self, increase_rule: ServiceQuotaIncreaseRule) -> bool:
+        # Check whether there's configuration to know how to increase the quota.
+        # Makes no sense to try to increase a quota if you don't know what to ask.
+        if not increase_rule:
             logger.info(
-                f"Quota {service_quota.quota_name} for service {service_quota.service_name} is not adjustable. Exiting..."
+                f"Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} has no increase configuration. Exiting..."
             )
             return False
 
-        # Check whether there's configuration to know how to increase the quota.
-        # Makes no sense to try to increase a quota if you don't know what to ask.
-        if not increase_config:
+        # Check whether the quota is adjustable and exit if it's not.
+        # Makes no sense to try to increase a non-adjustable quota.
+        if not increase_rule.service_quota.adjustable:
             logger.info(
-                f"Quota {service_quota.quota_name} for service {service_quota.service_name} has no increase configuration. Exiting..."
+                f"Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} is not adjustable. Exiting..."
             )
             return False
 
@@ -93,7 +91,8 @@ class ServiceQuotasIncreaser:
         # Check whether there's no open increase cases.
         # Makes no sense to try to increase a quota if you already asked.
         historic_cases = self.remote_service_quota_client.list_requested_service_quota_change_history_by_quota(
-            ServiceCode=service_quota.service_code, QuotaCode=service_quota.quota_code
+            ServiceCode=increase_rule.service_quota.service_code,
+            QuotaCode=increase_rule.service_quota.quota_code,
         )["RequestedQuotas"]
         cases_by_status = {}
         for case in historic_cases:
@@ -106,7 +105,7 @@ class ServiceQuotasIncreaser:
             or len(cases_by_status.get("CASE_OPENED", [])) > 0
         ):
             logger.info(
-                f"Quota {service_quota.quota_name} for service {service_quota.service_name} still has pending quota increase requests. Exiting..."
+                f"Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} still has pending quota increase requests. Exiting..."
             )
             return False
 

@@ -6,7 +6,7 @@ from service_quotas_manager.service_quotas_increaser import ServiceQuotasIncreas
 from service_quotas_manager.util import convert_dict
 
 
-class TestServiceQuotaIncreaser:
+class TestServiceQuotasIncreaser:
     @pytest.mark.parametrize("rule_type", ["step", "factor"])
     def test_can_request_service_quota_increase(
         self,
@@ -21,8 +21,7 @@ class TestServiceQuotaIncreaser:
         )
 
         rule_params = {
-            "service_name": service_quota.service_name,
-            "quota_name": service_quota.quota_name,
+            "service_quota": service_quota,
             "motivation": "I just want an increase!",
             "cc_mail_addresses": ["test@test.com"],
         }
@@ -68,6 +67,4 @@ class TestServiceQuotaIncreaser:
         )
         stubbed_support.activate()
 
-        increaser.request_service_quota_increase(
-            service_quota, service_quota_increase_rule
-        )
+        increaser.request_service_quota_increase(service_quota_increase_rule)

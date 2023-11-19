@@ -5,7 +5,7 @@ from service_quotas_manager.service_quotas_collector import ServiceQuotasCollect
 from service_quotas_manager.util import convert_dict
 
 
-class TestServiceQuotaCollector:
+class TestServiceQuotasCollector:
     def test_can_manage_alarms(
         self,
         service_quotas,
