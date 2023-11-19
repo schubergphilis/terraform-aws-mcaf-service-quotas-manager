@@ -1,3 +1,9 @@
+variable "bucket_kms_key_arn" {
+  description = "The ARN of the KMS key to use with the configuration S3 bucket"
+  type        = string
+  default     = null
+}
+
 variable "bucket_prefix" {
   description = "The optional prefix for the service quota manager configuration bucket"
   type        = string
@@ -19,16 +25,26 @@ variable "quotas_manager_configuration" {
               threshold_perc = number
             })
           )
-        )
+        ), {}
       )
-    }))
+      }), {
+      default_threshold_perc = 75
+      notification_topic_arn = ""
+      rules                  = {}
+    })
     quota_increase_config = optional(map(map(object({
       step              = optional(number)
       factor            = optional(number)
       motivation        = string
       cc_mail_addresses = list(string)
-    }))))
+    }))), {})
   }))
+}
+
+variable "schedule_kms_key_arn" {
+  description = "The ARN of the KMS key to use with the configuration S3 bucket"
+  type        = string
+  default     = null
 }
 
 variable "schedule_timezone" {

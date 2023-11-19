@@ -43,7 +43,7 @@ Each role requires the following trust policy:
 			"Sid": "AllowServiceQuotaManager",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<manager_account_id>:role/<service_quotas_manager_lambda_role_name>"
+				"AWS": "arn:aws:iam::<manager_account_id>:role/ServiceQuotaManagerExecutionRole-<region_name>"
 			},
 			"Action": "sts:AssumeRole"
 		}
@@ -96,13 +96,16 @@ Each role requires the following permission policy:
 }
 ```
 
-### Management Account
+### Central Account
 
-#### Installation
+> [!TIP]
+> Consider using a services account or audit account to deploy the service quotas manager in.
 
-```HCL
+A minimal setup can be done like this:
+
+```hcl
 module "service_quotas_manager" {
-  source = "github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v<version>"
+  source = github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v1.0.0
 
   quotas_manager_configuration = {
     "123456789000" = {
@@ -115,80 +118,68 @@ module "service_quotas_manager" {
         notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
       }
     }
-    "123456789001" = {
-      role_name = "ServiceQuotaManagerRole"
-      selected_services = [
-        "Amazon Virtual Private Cloud (Amazon VPC)",
-        "Amazon DynamoDB"
-      ]
-      alerting_config = {
-        default_threshold_perc = 75
-        notification_topic_arn = "arn:aws:sns:eu-west-1:123456789001:service-quotas-manager-notifications"
-      }
-    }
   }
 }
 ```
 
-#### Configuration
+See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/tests/service-quotas-manager.tftest.hcl) for more examples on how to configure thresholds and auto-increase rules.
 
-See below for a sample configuration for a single account that can be passed on to the Terraform module.
+<!-- BEGIN_TF_DOCS -->
+## Requirements
 
-* Service and quota names are as shown in the Service Quotas Console. They can be copy pasted.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | 2.4.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.25.0 |
 
-```HCL
-{
-  "123456789000" = {
-    role_name = "ServiceQuotaManagerRole"
-    selected_services = [
-      "Amazon Virtual Private Cloud (Amazon VPC)",
-      "Amazon Elastic Compute Cloud (Amazon EC2)",
-      "AWS Lambda",
-      "Amazon Elastic File System (EFS)",
-      "Amazon DynamoDB",
-      "Amazon Simple Storage Service (Amazon S3)"
-    ]
-    alerting_config = {
-      default_threshold_perc = 75
-      rules = {
-        "AWS Lambda" = {
-          "Elastic network interfaces per VPC" = {
-            threshold_perc = 85
-          }
-        }
-      }
-    }
-    quota_increase_config = {
-      "AWS Lambda" = {
-        "Elastic network interfaces per VPC" = {
-          step = 50
-          motivation = "We run a serverless integration platform that heavily relies on AWS Lambda. This account is a development account and we allow our developers to run feature environments to test the integrations they build in an isolated setting. In order to be able to grow the number of feature environments in this account we would like to request this quote increase. 50 Additional ENI's allow for running 1 additional feature environment, while limiting it to run on only a single AZ."
-          cc_mail_addresses = ["devops_engineer@acme.com"]
-        }
-      }
-    }
-  }
-}
-```
+## Providers
 
-The example below is a minimal monitor-only configuration for a single account:
+| Name | Version |
+|------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.4.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.25.0 |
 
-```HCL
-{
-  "123456789000" = {
-    role_name = "ServiceQuotaManagerRole"
-    selected_services = [
-      "Amazon Virtual Private Cloud (Amazon VPC)",
-      "Amazon Elastic Compute Cloud (Amazon EC2)",
-      "AWS Lambda",
-      "Amazon Elastic File System (EFS)",
-      "Amazon DynamoDB",
-      "Amazon Simple Storage Service (Amazon S3)"
-    ]
-    alerting_config = {
-      default_threshold_perc = 75
-      notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
-    }
-  }
-}
-```
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_service_quotas_manager_bucket"></a> [service\_quotas\_manager\_bucket](#module\_service\_quotas\_manager\_bucket) | github.com/schubergphilis/terraform-aws-mcaf-s3 | v0.11.0 |
+| <a name="module_service_quotas_manager_lambda"></a> [service\_quotas\_manager\_lambda](#module\_service\_quotas\_manager\_lambda) | github.com/schubergphilis/terraform-aws-mcaf-lambda | v1.1.1 |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/cloudwatch_event_target) | resource |
+| [aws_iam_policy.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_policy) | resource |
+| [aws_iam_role.service_quotas_manager_execution_role](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role) | resource |
+| [aws_iam_role.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.service_quotas_manager_execution_policy](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy_attachment.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_lambda_permission.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/lambda_permission) | resource |
+| [aws_s3_object.service_quotas_manager_config](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/s3_object) | resource |
+| [aws_scheduler_schedule.sqm_collect_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/scheduler_schedule) | resource |
+| [aws_scheduler_schedule_group.service_quotas_manager](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/scheduler_schedule_group) | resource |
+| [archive_file.service_quotas_manager_source](https://registry.terraform.io/providers/hashicorp/archive/2.4.0/docs/data-sources/file) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/data-sources/caller_identity) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/data-sources/region) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | The optional prefix for the service quota manager configuration bucket | `string` | `""` | no |
+| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>map(object({<br>    role_name         = string<br>    selected_services = list(string)<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = number<br>            })<br>          )<br>        )<br>      )<br>    }))<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))))<br>  }))</pre> | n/a | yes |
+| <a name="input_schedule_timezone"></a> [schedule\_timezone](#input\_schedule\_timezone) | The timezone to schedule service quota metric collection in | `string` | `"Europe/Amsterdam"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags to assign to resources created by this module | `map(string)` | `{}` | no |
+
+## Outputs
+
+No outputs.
+<!-- END_TF_DOCS -->
+
+## Licensing
+
+100% Open Source and licensed under the Apache License Version 2.0. See [LICENSE](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/LICENSE) for full details.

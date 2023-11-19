@@ -54,14 +54,7 @@ class TestServiceQuotaIncreaser:
         stubbed_support = Stubber(support)
         stubbed_support.add_response(
             "describe_severity_levels",
-            {
-                "severityLevels": [
-                    {
-                        "code": "foo",
-                        "name": "bar"
-                    }
-                ]
-            },
+            {"severityLevels": [{"code": "foo", "name": "bar"}]},
             {},
         )
         stubbed_support.add_response(

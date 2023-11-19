@@ -1,87 +1,87 @@
 {
-    "vpc": {
-        "L-407747CB": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::Subnet' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
-                "columnIndex": 1
-            }
-        },
-        "L-B4A6D682": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkAcl' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
-                "columnIndex": 1
-            }
-        },
-        "L-E79EC296": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::SecurityGroup'",
-                "columnIndex": 0
-            }
-        },
-        "L-F678F1CE": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::VPC'",
-                "columnIndex": 0
-            }
-        },
-        "L-A4707A72": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::InternetGateway'",
-                "columnIndex": 0
-            }
-        },
-        "L-589F43AA": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::RouteTable' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
-                "columnIndex": 1
-            }
-        },
-        "L-DF5E4CA3": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface'",
-                "columnIndex": 0
-            }
-        }
+  "ec2": {
+    "L-0263D0A3": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::EIP'"
+      },
+      "type": "config"
     },
-    "lambda": {
-        "L-9FEE3D26": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'",
-                "columnIndex": 0
-            }
-        }
-    },
-    "ec2": {
-        "L-0263D0A3": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::EIP'",
-                "columnIndex": 0
-            }
-        },
-        "L-FB451C26": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::LaunchTemplate'",
-                "columnIndex": 0
-            }
-        }
-    },
-    "s3": {
-        "L-DC2B2D3D": {
-            "type": "config",
-            "parameters": {
-                "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::S3::Bucket'",
-                "columnIndex": 0
-            }
-        }
+    "L-FB451C26": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::LaunchTemplate'"
+      },
+      "type": "config"
     }
+  },
+  "lambda": {
+    "L-9FEE3D26": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'"
+      },
+      "type": "config"
+    }
+  },
+  "s3": {
+    "L-DC2B2D3D": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::S3::Bucket'"
+      },
+      "type": "config"
+    }
+  },
+  "vpc": {
+    "L-407747CB": {
+      "parameters": {
+        "columnIndex": 1,
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::Subnet' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC"
+      },
+      "type": "config"
+    },
+    "L-589F43AA": {
+      "parameters": {
+        "columnIndex": 1,
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::RouteTable' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC"
+      },
+      "type": "config"
+    },
+    "L-A4707A72": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::InternetGateway'"
+      },
+      "type": "config"
+    },
+    "L-B4A6D682": {
+      "parameters": {
+        "columnIndex": 1,
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkAcl' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC"
+      },
+      "type": "config"
+    },
+    "L-DF5E4CA3": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface'"
+      },
+      "type": "config"
+    },
+    "L-E79EC296": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::SecurityGroup'"
+      },
+      "type": "config"
+    },
+    "L-F678F1CE": {
+      "parameters": {
+        "columnIndex": 0,
+        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::VPC'"
+      },
+      "type": "config"
+    }
+  }
 }
