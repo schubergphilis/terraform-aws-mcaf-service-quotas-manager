@@ -127,7 +127,7 @@ See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-m
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | 2.4.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.25.0 |
 
@@ -168,8 +168,10 @@ See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-m
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>map(object({<br>    role_name         = string<br>    selected_services = list(string)<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = number<br>            })<br>          )<br>        ), {}<br>      )<br>      }), {<br>      default_threshold_perc = 75<br>      notification_topic_arn = ""<br>      rules                  = {}<br>    })<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))), {})<br>  }))</pre> | n/a | yes |
+| <a name="input_bucket_kms_key_arn"></a> [bucket\_kms\_key\_arn](#input\_bucket\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket | `string` | `null` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | The optional prefix for the service quota manager configuration bucket | `string` | `""` | no |
-| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>map(object({<br>    role_name         = string<br>    selected_services = list(string)<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = number<br>            })<br>          )<br>        )<br>      )<br>    }))<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))))<br>  }))</pre> | n/a | yes |
+| <a name="input_schedule_kms_key_arn"></a> [schedule\_kms\_key\_arn](#input\_schedule\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket | `string` | `null` | no |
 | <a name="input_schedule_timezone"></a> [schedule\_timezone](#input\_schedule\_timezone) | The timezone to schedule service quota metric collection in | `string` | `"Europe/Amsterdam"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to assign to resources created by this module | `map(string)` | `{}` | no |
 
