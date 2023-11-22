@@ -12,7 +12,6 @@ class ServiceQuota:
     service_code: str
     service_name: str
     unit: str
-    value: float
 
     collection_query: Dict = field(default_factory=lambda: {})
     error_reason: Dict = field(default_factory=lambda: {})
@@ -22,6 +21,7 @@ class ServiceQuota:
     quota_applied_at_level: str = ""
     quota_context: Dict = field(default_factory=lambda: {})
     usage_metric: Dict = field(default_factory=lambda: {})
+    value: Optional[float] = None
 
 
 @dataclass

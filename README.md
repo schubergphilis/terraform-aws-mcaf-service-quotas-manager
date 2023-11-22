@@ -77,6 +77,14 @@ Each role requires the following permission policy:
       "Resource": "*"
     },
     {
+      "Sid": "AllowDescribeDynamoDBLimits",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:DescribeLimits",
+      ],
+      "Resource": "*"
+    },
+    {
       "Sid": "AllowServiceQuotaAccess",
       "Effect": "Allow",
       "Action": [

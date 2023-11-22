@@ -123,7 +123,7 @@ class TestServiceQuotasCollector:
         stubbed_cloudwatch = Stubber(cloudwatch)
         stubbed_cloudwatch.add_response(
             "get_metric_data",
-            {"MetricDataResults": [{"Id": "00000", "Values": [1.0, 2.0]}]},
+            {"MetricDataResults": [{"Id": "sq00000", "Values": [1.0, 2.0]}]},
             {
                 "EndTime": ANY,
                 "MetricDataQueries": ANY,

@@ -8,6 +8,8 @@ run "basic" {
   command = apply
 
   variables {
+    bucket_prefix = "sqmtest-basic-"
+
     quotas_manager_configuration = {
       "123456789000" = {
         role_name = "ServiceQuotaManagerRole"
@@ -42,6 +44,7 @@ run "increase_config" {
   command = apply
 
   variables {
+    bucket_prefix = "sqmtest-increase-config-"
     quotas_manager_configuration = {
       "123456789000" = {
         role_name = "ServiceQuotaManagerRole"
@@ -96,6 +99,8 @@ run "multi_account" {
   command = apply
 
   variables {
+    bucket_prefix = "sqmtest-multi-account-"
+
     quotas_manager_configuration = {
       "123456789000" = {
         role_name = "ServiceQuotaManagerRole"

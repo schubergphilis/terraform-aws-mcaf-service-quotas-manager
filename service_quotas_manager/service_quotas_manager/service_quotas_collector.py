@@ -239,6 +239,9 @@ class ServiceQuotasCollector:
         applied_service_quotas_by_id = {}
         for applied_service_quota_page in applied_service_quota_pages:
             for applied_service_quota in applied_service_quota_page["Quotas"]:
+                if "ErrorReason" in applied_service_quota:
+                    continue
+
                 applied_service_quotas_by_id[
                     applied_service_quota["QuotaCode"]
                 ] = applied_service_quota
@@ -247,14 +250,17 @@ class ServiceQuotasCollector:
         id_cntr = 0
         for service_quota_page in default_service_quota_pages:
             for service_quota in service_quota_page["Quotas"]:
+                if "ErrorReason" in service_quota:
+                    logger.warning(f"Can not manage quota {service_quota['ServiceName']} / {service_quota['QuotaName']}. Reason code: {service_quota['ErrorReason']['ErrorCode']}. Reason message: {service_quota['ErrorReason']['ErrorMessage']}")
+                    continue
+
                 if service_quota["QuotaCode"] in applied_service_quotas_by_id:
                     service_quota = applied_service_quotas_by_id[
                         service_quota["QuotaCode"]
                     ]
 
                 service_quota = ServiceQuota(**convert_dict(service_quota))
-
-                service_quota.internal_id = f"{id_cntr:05}"
+                service_quota.internal_id = f"sq{id_cntr:05}"
                 id_cntr += 1
                 service_quotas.append(service_quota)
         return service_quotas
