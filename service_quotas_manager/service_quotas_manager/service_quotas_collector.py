@@ -90,6 +90,10 @@ class ServiceQuotasCollector:
                     dimension["Name"]: dimension["Value"]
                     for dimension in alarm["Dimensions"]
                 }
+
+                if nd['AccountId'] != self.account_id:
+                    continue
+
                 alarms_by_service_quota[
                     f"{nd['ServiceCode']}#{nd['QuotaCode']}#{nd['AccountId']}"
                 ] = alarm
