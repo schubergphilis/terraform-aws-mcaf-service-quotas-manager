@@ -49,18 +49,15 @@ Each role requires the following trust policy:
 }
 ```
 
-Each role requires the following permission policy:
+Each role requires the following policies attached:
+
+1. AWS Managed policy `ServiceQuotasReadOnlyAccess`.
+2. A custom policy with the following permissions:
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
-    {
-      "Sid": "AllowCloudwatchMetricData",
-      "Effect": "Allow",
-      "Action": "cloudwatch:GetMetricData",
-        "Resource": "*"
-    },
     {
       "Sid": "AllowConfigReadAccess",
       "Effect": "Allow",
@@ -77,24 +74,10 @@ Each role requires the following permission policy:
       "Resource": "*"
     },
     {
-      "Sid": "AllowDescribeDynamoDBLimits",
-      "Effect": "Allow",
-      "Action": [
-        "dynamodb:DescribeLimits",
-      ],
-      "Resource": "*"
-    },
-    {
       "Sid": "AllowServiceQuotaAccess",
       "Effect": "Allow",
       "Action": [
-          "servicequotas:ListServices",
-          "servicequotas:GetServiceQuota",
-          "servicequotas:ListAWSDefaultServiceQuotas",
-          "servicequotas:RequestServiceQuotaIncrease",
-          "servicequotas:ListRequestedServiceQuotaChangeHistoryByQuota",
-          "servicequotas:ListServiceQuotas",
-          "servicequotas:GetAWSDefaultServiceQuota"
+          "servicequotas:RequestServiceQuotaIncrease"
       ],
       "Resource": "*"
     }
