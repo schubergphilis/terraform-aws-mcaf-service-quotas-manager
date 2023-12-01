@@ -22,9 +22,18 @@ def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> D
 
 def _assume_role(role_arn: str) -> Dict:
     sts_client = _get_local_client("sts")
-    assumed_role = sts_client.assume_role(
-        RoleArn=role_arn, RoleSessionName="ServiceQuotaManagerRole", DurationSeconds=900
-    )
+
+    try:
+        assumed_role = sts_client.assume_role(
+            RoleArn=role_arn,
+            RoleSessionName="ServiceQuotaManagerRole",
+            DurationSeconds=900,
+        )
+    except ClientError as ex:
+        logger.error(
+            f"Could not assume role {role_arn}. Error: {ex.response['Error']['Code']}. Exiting..."
+        )
+        return {}
 
     return {
         "aws_access_key_id": assumed_role["Credentials"]["AccessKeyId"],
@@ -111,15 +120,19 @@ def handler(event, _context):
     assume_role_arn = f"arn:aws:iam::{account_id}:role/{config['role_name']}"
     remote_creds = _assume_role(assume_role_arn)
 
+    if not remote_creds:
+        return
+
     if event["action"] == "CollectServiceQuotas":
         sqc = ServiceQuotasCollector(
             _get_remote_client("service-quotas", remote_creds),
             _get_remote_client("cloudwatch", remote_creds),
             _get_remote_client("config", remote_creds),
+            _get_remote_client("ce", remote_creds.update({"region_name": "us-east-1"})),
             _get_local_client("cloudwatch"),
             account_id,
         )
-        sqc.collect(list(set(config["selected_services"])))
+        sqc.collect(list(set(config.get("selected_services", []))))
         sqc.manage_alarms(config.get("alerting_config"))
 
     elif event["action"] == "IncreaseServiceQuota":

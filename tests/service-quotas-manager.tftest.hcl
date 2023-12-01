@@ -104,9 +104,6 @@ run "multi_account" {
     quotas_manager_configuration = {
       "123456789000" = {
         role_name = "ServiceQuotaManagerRole"
-        selected_services = [
-          "AWS Lambda",
-        ]
         alerting_config = {
           default_threshold_perc = 75
           notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"

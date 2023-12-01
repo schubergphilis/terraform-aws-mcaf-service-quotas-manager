@@ -1,0 +1,17 @@
+{
+  "get_cost_and_usage": {
+    "single_service": {
+      "ResultsByTime": [
+        {
+          "Groups": [
+            {
+              "Keys": [
+                "AWS Lambda"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

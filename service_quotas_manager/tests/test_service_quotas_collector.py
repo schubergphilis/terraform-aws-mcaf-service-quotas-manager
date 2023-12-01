@@ -11,10 +11,16 @@ class TestServiceQuotasCollector:
         service_quotas,
         cloudwatch,
         aws_config,
+        cost_explorer,
         service_quotas_list_applied_quotas_lambda,
     ):
         collector = ServiceQuotasCollector(
-            service_quotas, cloudwatch, aws_config, cloudwatch, "123456789000"
+            service_quotas,
+            cloudwatch,
+            aws_config,
+            cost_explorer,
+            cloudwatch,
+            "123456789000",
         )
 
         service_quota = ServiceQuota(
@@ -96,12 +102,18 @@ class TestServiceQuotasCollector:
         service_quotas,
         cloudwatch,
         aws_config,
+        cost_explorer,
         service_quotas_list_all_services,
         service_quotas_list_default_quotas_lambda,
         service_quotas_list_applied_quotas_lambda,
     ):
         collector = ServiceQuotasCollector(
-            service_quotas, cloudwatch, aws_config, cloudwatch, "123456789000"
+            service_quotas,
+            cloudwatch,
+            aws_config,
+            cost_explorer,
+            cloudwatch,
+            "123456789000",
         )
 
         stubbed_service_quotas = Stubber(service_quotas)
@@ -140,13 +152,106 @@ class TestServiceQuotasCollector:
                         "Dimensions": [
                             {"Name": "AccountId", "Value": "123456789000"},
                             {"Name": "ServiceCode", "Value": "lambda"},
-                            {"Name": "QuotaName", "Value": "Concurrent executions"},
-                            {"Name": "QuotaCode", "Value": "L-B99A9384"},
+                            {
+                                "Name": "QuotaName",
+                                "Value": "Function and layer storage",
+                            },
+                            {"Name": "QuotaCode", "Value": "L-9FEE3D26"},
                         ],
                         "MetricName": "ServiceQuotaUsage",
                         "Timestamp": ANY,
-                        "Value": 1.0,
+                        "Value": 120.0,
                     },
+                ],
+                "Namespace": "ServiceQuotaManager",
+            },
+        )
+        stubbed_cloudwatch.activate()
+
+        stubbed_aws_config = Stubber(aws_config)
+        stubbed_aws_config.add_response(
+            "select_resource_config",
+            {
+                "Results": ['{"COUNT(*)":120}'],
+                "QueryInfo": {"SelectFields": [{"Name": "COUNT(*)"}]},
+            },
+            {
+                "Expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'",
+                "Limit": 1,
+            },
+        )
+        stubbed_aws_config.activate()
+
+        collector.collect(["AWS Lambda"])
+
+        stubbed_cloudwatch.assert_no_pending_responses()
+        stubbed_service_quotas.assert_no_pending_responses()
+
+    def test_can_auto_discover_services(
+        self,
+        service_quotas,
+        cloudwatch,
+        aws_config,
+        cost_explorer,
+        service_quotas_list_all_services,
+        service_quotas_list_default_quotas_lambda,
+        service_quotas_list_applied_quotas_lambda,
+        cost_explorer_get_cost_and_usage_single_service,
+    ):
+        collector = ServiceQuotasCollector(
+            service_quotas,
+            cloudwatch,
+            aws_config,
+            cost_explorer,
+            cloudwatch,
+            "123456789000",
+        )
+
+        stubbed_cost_explorer = Stubber(cost_explorer)
+        stubbed_cost_explorer.add_response(
+            "get_cost_and_usage",
+            cost_explorer_get_cost_and_usage_single_service,
+            {
+                "Granularity": "MONTHLY",
+                "GroupBy": [{"Key": "SERVICE", "Type": "DIMENSION"}],
+                "Metrics": ["BlendedCost"],
+                "TimePeriod": {"End": ANY, "Start": ANY},
+            },
+        )
+        stubbed_cost_explorer.activate()
+
+        stubbed_service_quotas = Stubber(service_quotas)
+        stubbed_service_quotas.add_response(
+            "list_services", service_quotas_list_all_services, {}
+        )
+        stubbed_service_quotas.add_response(
+            "list_service_quotas",
+            service_quotas_list_applied_quotas_lambda,
+            {"ServiceCode": "lambda"},
+        )
+        stubbed_service_quotas.add_response(
+            "list_aws_default_service_quotas",
+            service_quotas_list_default_quotas_lambda,
+            {"ServiceCode": "lambda"},
+        )
+        stubbed_service_quotas.activate()
+
+        stubbed_cloudwatch = Stubber(cloudwatch)
+        stubbed_cloudwatch.add_response(
+            "get_metric_data",
+            {"MetricDataResults": [{"Id": "sq00000", "Values": [1.0, 2.0]}]},
+            {
+                "EndTime": ANY,
+                "MetricDataQueries": ANY,
+                "ScanBy": "TimestampDescending",
+                "StartTime": ANY,
+            },
+        )
+        stubbed_cloudwatch.add_response(
+            "put_metric_data",
+            {},
+            {
+                "MetricData": [
                     {
                         "Dimensions": [
                             {"Name": "AccountId", "Value": "123456789000"},
@@ -181,7 +286,7 @@ class TestServiceQuotasCollector:
         )
         stubbed_aws_config.activate()
 
-        collector.collect(["AWS Lambda"])
+        collector.collect([])
 
         stubbed_cloudwatch.assert_no_pending_responses()
         stubbed_service_quotas.assert_no_pending_responses()

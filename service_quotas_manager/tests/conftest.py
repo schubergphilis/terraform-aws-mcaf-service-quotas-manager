@@ -40,6 +40,11 @@ def support():
     return botocore.session.get_session().create_client("support")
 
 
+@pytest.fixture
+def cost_explorer():
+    return botocore.session.get_session().create_client("ce")
+
+
 ### AWS Service Responses
 
 
@@ -76,3 +81,10 @@ def service_quotas_list_applied_quotas_lambda():
     return json.load(open(Path(FIXTURES_PATH) / "service_quotas.json"))[
         "list_service_quotas"
     ]["lambda"]
+
+
+@pytest.fixture
+def cost_explorer_get_cost_and_usage_single_service():
+    return json.load(open(Path(FIXTURES_PATH) / "cost_explorer.json"))[
+        "get_cost_and_usage"
+    ]["single_service"]

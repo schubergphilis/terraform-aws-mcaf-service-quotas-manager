@@ -14,7 +14,7 @@ variable "quotas_manager_configuration" {
   description = "The configuration for the service quota manager"
   type = map(object({
     role_name         = string
-    selected_services = list(string)
+    selected_services = optional(list(string), [])
     alerting_config = optional(object({
       default_threshold_perc = number
       notification_topic_arn = optional(string, "")

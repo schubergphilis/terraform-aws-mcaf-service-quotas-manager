@@ -8,6 +8,8 @@ This Service Quotas Manager can be installed as part as an AWS Organization or i
 
 1. Collection of service quotas and metrics per configured account, storing usage metrics centrally. Usage metrics can be derived from CloudWatch or AWS Config. The latter obviously requires AWS Config to be enabled in your target account.
 
+1. Automated discovery of used services by querying AWS Cost Explorer.
+
 1. Management of alarms on your service quotas with configurable thresholds per quota. Alarms can be disabled by omitting the alerting config.
 
 1. Optionally an SNS topic can be provided as alarm action.
@@ -74,6 +76,14 @@ Each role requires the following policies attached:
       "Resource": "*"
     },
     {
+      "Sid": "AllowOptionalCeAccessForServiceAutoDiscovery",
+      "Effect": "Allow",
+      "Action": [
+        "ce:GetCostAndUsage",
+      ],
+      "Resource": "*"
+    },
+    {
       "Sid": "AllowServiceQuotaAccess",
       "Effect": "Allow",
       "Action": [
@@ -99,9 +109,6 @@ module "service_quotas_manager" {
   quotas_manager_configuration = {
     "123456789000" = {
       role_name = "ServiceQuotaManagerRole"
-      selected_services = [
-        "AWS Lambda",
-      ]
       alerting_config = {
         default_threshold_perc = 75
         notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
@@ -134,7 +141,7 @@ See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-m
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_service_quotas_manager_bucket"></a> [service\_quotas\_manager\_bucket](#module\_service\_quotas\_manager\_bucket) | github.com/schubergphilis/terraform-aws-mcaf-s3 | v0.11.0 |
-| <a name="module_service_quotas_manager_lambda"></a> [service\_quotas\_manager\_lambda](#module\_service\_quotas\_manager\_lambda) | github.com/schubergphilis/terraform-aws-mcaf-lambda | v1.1.1 |
+| <a name="module_service_quotas_manager_lambda"></a> [service\_quotas\_manager\_lambda](#module\_service\_quotas\_manager\_lambda) | github.com/schubergphilis/terraform-aws-mcaf-lambda | v1.1.2 |
 
 ## Resources
 
@@ -159,9 +166,9 @@ See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-m
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>map(object({<br>    role_name         = string<br>    selected_services = list(string)<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = number<br>            })<br>          )<br>        ), {}<br>      )<br>      }), {<br>      default_threshold_perc = 75<br>      notification_topic_arn = ""<br>      rules                  = {}<br>    })<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))), {})<br>  }))</pre> | n/a | yes |
 | <a name="input_bucket_kms_key_arn"></a> [bucket\_kms\_key\_arn](#input\_bucket\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket | `string` | `null` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | The optional prefix for the service quota manager configuration bucket | `string` | `""` | no |
+| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>map(object({<br>    role_name         = string<br>    selected_services = optional(list(string), [])<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = number<br>            })<br>          )<br>        ), {}<br>      )<br>      }), {<br>      default_threshold_perc = 75<br>      notification_topic_arn = ""<br>      rules                  = {}<br>    })<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))), {})<br>  }))</pre> | n/a | yes |
 | <a name="input_schedule_kms_key_arn"></a> [schedule\_kms\_key\_arn](#input\_schedule\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket | `string` | `null` | no |
 | <a name="input_schedule_timezone"></a> [schedule\_timezone](#input\_schedule\_timezone) | The timezone to schedule service quota metric collection in | `string` | `"Europe/Amsterdam"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to assign to resources created by this module | `map(string)` | `{}` | no |

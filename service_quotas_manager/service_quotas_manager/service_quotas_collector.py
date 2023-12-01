@@ -2,8 +2,11 @@ import json
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List
+from difflib import SequenceMatcher as SM
+from typing import Dict, List, Optional
 from unittest import TestCase
+
+from botocore.exceptions import ClientError
 
 from service_quotas_manager.entities import ServiceQuota
 from service_quotas_manager.util import convert_dict
@@ -11,6 +14,7 @@ from service_quotas_manager.util import convert_dict
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+CE_ITEM_BLACKLIST = ["Tax", "EC2 - Other"]
 LOCAL_METRIC_NAMESPACE = "ServiceQuotaManager"
 LOCAL_METRIC_NAME = "ServiceQuotaUsage"
 
@@ -21,12 +25,14 @@ class ServiceQuotasCollector:
         remote_service_quota_client,
         remote_cloudwatch_client,
         remote_config_client,
+        remote_ce_client,
         local_cloudwatch_client,
         account_id: str,
     ):
         self.remote_service_quota_client = remote_service_quota_client
         self.remote_cloudwatch_client = remote_cloudwatch_client
         self.remote_config_client = remote_config_client
+        self.remote_ce_client = remote_ce_client
         self.local_cloudwatch_client = local_cloudwatch_client
         self.account_id = account_id
 
@@ -35,8 +41,11 @@ class ServiceQuotasCollector:
             open("service_quotas_manager/custom_collection_queries.json")
         )
 
-    def collect(self, selected_services: List[str]) -> Dict:
+    def collect(self, selected_services: List[str]) -> None:
         filtered_services = self._find_service_codes(selected_services)
+        if not filtered_services:
+            return
+
         service_quotas_with_metrics = []
 
         for service in filtered_services:
@@ -68,6 +77,7 @@ class ServiceQuotasCollector:
                     if sq.collection_query.get("type", "") == "config"
                 ]
             )
+            self._filter_metrics(service_quota_group)
             self._put_local_metrics(service_quota_group)
             self._service_quotas += service_quota_group
 
@@ -91,7 +101,7 @@ class ServiceQuotasCollector:
                     for dimension in alarm["Dimensions"]
                 }
 
-                if nd['AccountId'] != self.account_id:
+                if nd["AccountId"] != self.account_id:
                     continue
 
                 alarms_by_service_quota[
@@ -195,7 +205,44 @@ class ServiceQuotasCollector:
                 )
                 time.sleep(0.35)  # PutMetricAlarm is rate limited at 3TPS.
 
-    def _find_service_codes(self, selected_services: List[str]) -> List[Dict]:
+    def __auto_detect_service_codes_from_billing(self) -> Optional[List[str]]:
+        """
+        Auto-detect services to monitor by retrieving a list
+        of services from Cost Explorer. This allows for more precise and
+        automated ways of adding services to monitor.
+        """
+
+        try:
+            ce_report = self.remote_ce_client.get_cost_and_usage(
+                TimePeriod={
+                    "Start": (datetime.today() - timedelta(days=30)).strftime(
+                        "%Y-%m-%d"
+                    ),
+                    "End": datetime.today().strftime("%Y-%m-%d"),
+                },
+                Granularity="MONTHLY",
+                Metrics=["BlendedCost"],
+                GroupBy=[{"Type": "DIMENSION", "Key": "SERVICE"}],
+            )
+        except ClientError as ex:
+            logger.error(
+                f"No services to monitor specified and unable to determine based on billing. Error: {ex.response['Error']['Code']}. Exiting..."
+            )
+            return
+
+        ce_service_names = [
+            ce_item["Keys"][0]
+            for ce_item in ce_report["ResultsByTime"][0]["Groups"]
+            if ce_item["Keys"][0] not in CE_ITEM_BLACKLIST
+        ]
+
+        return ce_service_names
+
+    def _find_service_codes(self, selected_services: Optional[List[str]]) -> List[Dict]:
+        auto_detected_services = []
+        if not selected_services:
+            auto_detected_services = self.__auto_detect_service_codes_from_billing()
+
         services_paginator = self.remote_service_quota_client.get_paginator(
             "list_services"
         )
@@ -205,17 +252,29 @@ class ServiceQuotasCollector:
         matched_services = []
         for service_page in services_pages:
             for service in service_page["Services"]:
-                if service["ServiceName"] in selected_services:
-                    filtered_services.append(service)
-                    matched_services.append(service["ServiceName"])
+                if auto_detected_services:
+                    for detected_service in auto_detected_services:
+                        diff_ratio = SM(
+                            None, detected_service, service["ServiceName"]
+                        ).ratio()
+                        if diff_ratio > 0.75:
+                            filtered_services.append(service)
+                            logger.info(
+                                f"Selected service {service['ServiceName']} based on cost and usage reports."
+                            )
+                else:
+                    if service["ServiceName"] in selected_services:
+                        filtered_services.append(service)
+                        matched_services.append(service["ServiceName"])
 
-        unmatched_services = [
-            sn for sn in selected_services if sn not in matched_services
-        ]
-        if unmatched_services:
-            logger.warning(
-                f"The following services do not seem to exist: {', '.join(unmatched_services)}. Maybe you used the service code instead of the service name?"
-            )
+        if not auto_detected_services:
+            unmatched_services = [
+                sn for sn in selected_services if sn not in matched_services
+            ]
+            if unmatched_services:
+                logger.warning(
+                    f"The following services do not seem to exist: {', '.join(unmatched_services)}. Maybe you used the service code instead of the service name?"
+                )
 
         return filtered_services
 
@@ -224,6 +283,7 @@ class ServiceQuotasCollector:
         Merge default quotas with applied quotas. Applied quotas
         overrule default quotas.
         """
+
         default_service_quota_paginator = (
             self.remote_service_quota_client.get_paginator(
                 "list_aws_default_service_quotas"
@@ -255,7 +315,9 @@ class ServiceQuotasCollector:
         for service_quota_page in default_service_quota_pages:
             for service_quota in service_quota_page["Quotas"]:
                 if "ErrorReason" in service_quota:
-                    logger.warning(f"Can not manage quota {service_quota['ServiceName']} / {service_quota['QuotaName']}. Reason code: {service_quota['ErrorReason']['ErrorCode']}. Reason message: {service_quota['ErrorReason']['ErrorMessage']}")
+                    logger.warning(
+                        f"Can not manage quota {service_quota['ServiceName']} / {service_quota['QuotaName']}. Reason code: {service_quota['ErrorReason']['ErrorCode']}. Reason message: {service_quota['ErrorReason']['ErrorMessage']}"
+                    )
                     continue
 
                 if service_quota["QuotaCode"] in applied_service_quotas_by_id:
@@ -352,12 +414,22 @@ class ServiceQuotasCollector:
             )
             service_quota.metric_values = values
 
+    def _filter_metrics(self, service_quota_group: List[ServiceQuota]) -> None:
+        """
+        Filter out metrics for service quotas that have values, an applied quota,
+        and a current usage of less than 10% of the applied quota. This is to prevent
+        monitoring and cost for quotas that don't matter (yet). As soon as a quota increases
+        above the 10% threshold it will be included in monitors and alarms.
+        """
+        for service_quota in service_quota_group:
+            if (
+                service_quota.value
+                and service_quota.metric_values[0] < (service_quota.value * 10) / 100
+            ):
+                service_quota.metric_values = []
+
     def _put_local_metrics(self, service_quota_group: List[ServiceQuota]) -> None:
         current_time = datetime.now()
-        service_quotas_with_values = [
-            sq for sq in service_quota_group if sq.metric_values
-        ]
-
         self.local_cloudwatch_client.put_metric_data(
             Namespace=LOCAL_METRIC_NAMESPACE,
             MetricData=[
@@ -372,11 +444,13 @@ class ServiceQuotasCollector:
                     "Timestamp": current_time,
                     "Value": service_quota.metric_values[0],
                 }
-                for service_quota in service_quotas_with_values
+                for service_quota in service_quota_group
+                if service_quota.metric_values
             ],
         )
 
-        for service_quota in service_quotas_with_values:
-            logger.info(
-                f"Stored metric values for quota {service_quota.service_name} / {service_quota.quota_name}: {service_quota.metric_values[0]}"
-            )
+        for service_quota in service_quota_group:
+            if service_quota.metric_values:
+                logger.info(
+                    f"Stored metric values for quota {service_quota.service_name} / {service_quota.quota_name}: {service_quota.metric_values[0]}"
+                )
