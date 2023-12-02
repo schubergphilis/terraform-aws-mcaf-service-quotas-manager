@@ -41,6 +41,8 @@ class ServiceQuotasCollector:
             open("service_quotas_manager/custom_collection_queries.json")
         )
 
+        self.__sqid_cntr = 0
+
     def collect(self, selected_services: List[str]) -> None:
         filtered_services = self._find_service_codes(selected_services)
         if not filtered_services:
@@ -312,7 +314,6 @@ class ServiceQuotasCollector:
             time.sleep(0.1)
 
         service_quotas = []
-        id_cntr = 0
         for service_quota_page in default_service_quota_pages:
             for service_quota in service_quota_page["Quotas"]:
                 if "ErrorReason" in service_quota:
@@ -327,8 +328,8 @@ class ServiceQuotasCollector:
                     ]
 
                 service_quota = ServiceQuota(**convert_dict(service_quota))
-                service_quota.internal_id = f"sq{id_cntr:05}"
-                id_cntr += 1
+                service_quota.internal_id = f"sq{self.__sqid_cntr:05}"
+                self.__sqid_cntr += 1
                 service_quotas.append(service_quota)
             time.sleep(0.1)
 
@@ -427,6 +428,7 @@ class ServiceQuotasCollector:
         for service_quota in service_quota_group:
             if (
                 service_quota.value
+                and service_quota.metric_values
                 and service_quota.metric_values[0] < (service_quota.value * 10) / 100
             ):
                 service_quota.metric_values = []

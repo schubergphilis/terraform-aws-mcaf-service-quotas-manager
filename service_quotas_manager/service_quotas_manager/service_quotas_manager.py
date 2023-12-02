@@ -92,7 +92,9 @@ def _get_service_quota_from_alarm(
         )
 
 
-def _get_remote_client(client_name: str, credentials: Dict, region: Optional[str] = None):
+def _get_remote_client(
+    client_name: str, credentials: Dict, region: Optional[str] = None
+):
     if region:
         credentials["region_name"] = region
     return boto3.client(client_name, **credentials)
