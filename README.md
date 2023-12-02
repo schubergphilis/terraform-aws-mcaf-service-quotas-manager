@@ -79,7 +79,7 @@ Each role requires the following policies attached:
       "Sid": "AllowOptionalCeAccessForServiceAutoDiscovery",
       "Effect": "Allow",
       "Action": [
-        "ce:GetCostAndUsage",
+        "ce:GetCostAndUsage"
       ],
       "Resource": "*"
     },
