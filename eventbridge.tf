@@ -64,7 +64,8 @@ resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
   schedule_expression_timezone = var.schedule_timezone
 
   flexible_time_window {
-    mode = "OFF"
+    mode                      = "FLEXIBLE"
+    maximum_window_in_minutes = 5
   }
 
   target {

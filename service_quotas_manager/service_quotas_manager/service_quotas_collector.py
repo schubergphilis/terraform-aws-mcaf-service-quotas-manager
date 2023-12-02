@@ -262,8 +262,10 @@ class ServiceQuotasCollector:
                         if diff_ratio > 0.75:
                             filtered_services.append(service)
                             logger.info(
-                                f"Selected service {service['ServiceName']} based on cost and usage reports."
+                                f"Selected service {service['ServiceName']} based on cost and usage reports ({detected_service})."
                             )
+                            auto_detected_services.remove(detected_service)
+                            break
                 else:
                     if service["ServiceName"] in selected_services:
                         filtered_services.append(service)
@@ -311,7 +313,7 @@ class ServiceQuotasCollector:
                 applied_service_quotas_by_id[
                     applied_service_quota["QuotaCode"]
                 ] = applied_service_quota
-            time.sleep(0.1)
+            time.sleep(1)
 
         service_quotas = []
         for service_quota_page in default_service_quota_pages:
@@ -331,7 +333,7 @@ class ServiceQuotasCollector:
                 service_quota.internal_id = f"sq{self.__sqid_cntr:05}"
                 self.__sqid_cntr += 1
                 service_quotas.append(service_quota)
-            time.sleep(0.1)
+            time.sleep(1)
 
         return service_quotas
 
