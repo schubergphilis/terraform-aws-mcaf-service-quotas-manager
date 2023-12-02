@@ -309,6 +309,7 @@ class ServiceQuotasCollector:
                 applied_service_quotas_by_id[
                     applied_service_quota["QuotaCode"]
                 ] = applied_service_quota
+            time.sleep(0.1)
 
         service_quotas = []
         id_cntr = 0
@@ -329,6 +330,8 @@ class ServiceQuotasCollector:
                 service_quota.internal_id = f"sq{id_cntr:05}"
                 id_cntr += 1
                 service_quotas.append(service_quota)
+            time.sleep(0.1)
+
         return service_quotas
 
     def _collect_config_remote_metrics(
