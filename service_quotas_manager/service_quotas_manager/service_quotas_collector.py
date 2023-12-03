@@ -112,13 +112,13 @@ class ServiceQuotasCollector:
                 ] = alarm
 
         self._upsert_alarms(alerting_config, alarms_by_service_quota)
-        self._cleanup_alarms(alarms_by_service_quota)
+        self._cleanup_alarms(alerting_config, alarms_by_service_quota)
 
-    def _cleanup_alarms(self, alarms_by_service_quota: Dict):
+    def _cleanup_alarms(self, alerting_config: Dict, alarms_by_service_quota: Dict):
         all_desired_alarm_codes = [
             f"{service_quota.service_code}#{service_quota.quota_code}#{self.account_id}"
             for service_quota in self._service_quotas
-            if len(service_quota.metric_values) > 0
+            if self.__should_alarm(alerting_config, service_quota)
         ]
         alarms_to_delete = [
             alarm["AlarmName"]
@@ -134,22 +134,7 @@ class ServiceQuotasCollector:
 
     def _upsert_alarms(self, alerting_config: Dict, alarms_by_service_quota: Dict):
         for service_quota in self._service_quotas:
-            if not service_quota.metric_values:
-                logger.info(
-                    f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing/filtered metrics."
-                )
-                continue
-
-            ignore = (
-                alerting_config.get("rules", {})
-                .get(service_quota.service_name, {})
-                .get(service_quota.quota_name, {})
-                .get("ignore", False)
-            )
-            if ignore:
-                logger.info(
-                    f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to explicit ignore."
-                )
+            if not self.__should_alarm(alerting_config, service_quota):
                 continue
 
             service_quota_key = f"{service_quota.service_code}#{service_quota.quota_code}#{self.account_id}"
@@ -219,6 +204,28 @@ class ServiceQuotasCollector:
                     **desired_alarm_definition
                 )
                 time.sleep(0.35)  # PutMetricAlarm is rate limited at 3TPS.
+
+    def __should_alarm(
+        self, alerting_config: Dict, service_quota: ServiceQuota
+    ) -> bool:
+        if not service_quota.metric_values:
+            logger.info(
+                f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing/filtered metrics."
+            )
+            return False
+
+        if (
+            alerting_config.get("rules", {})
+            .get(service_quota.service_name, {})
+            .get(service_quota.quota_name, {})
+            .get("ignore", False)
+        ):
+            logger.info(
+                f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to explicit ignore."
+            )
+            return False
+
+        return True
 
     def __auto_detect_service_codes_from_billing(self) -> Optional[List[str]]:
         """
