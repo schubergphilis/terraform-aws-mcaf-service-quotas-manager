@@ -22,7 +22,8 @@ variable "quotas_manager_configuration" {
         map(
           map(
             object({
-              threshold_perc = number
+              threshold_perc = optional(number, null)
+              ignore         = optional(bool, false)
             })
           )
         ), {}

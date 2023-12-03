@@ -18,7 +18,7 @@ module "service_quotas_manager_lambda" {
   retries       = 0
   role_arn      = aws_iam_role.service_quotas_manager_execution_role.arn
   runtime       = "python3.11"
-  timeout       = 180
+  timeout       = 300
   tags          = var.tags
 }
 

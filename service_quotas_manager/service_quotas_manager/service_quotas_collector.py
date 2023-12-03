@@ -17,6 +17,7 @@ logger.setLevel(logging.INFO)
 CE_ITEM_BLACKLIST = ["Tax", "EC2 - Other"]
 LOCAL_METRIC_NAMESPACE = "ServiceQuotaManager"
 LOCAL_METRIC_NAME = "ServiceQuotaUsage"
+METRIC_FILTER_THRESHOLD_PERC = 10
 
 
 class ServiceQuotasCollector:
@@ -135,7 +136,19 @@ class ServiceQuotasCollector:
         for service_quota in self._service_quotas:
             if not service_quota.metric_values:
                 logger.info(
-                    f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing metrics."
+                    f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing/filtered metrics."
+                )
+                continue
+
+            ignore = (
+                alerting_config.get("rules", {})
+                .get(service_quota.service_name, {})
+                .get(service_quota.quota_name, {})
+                .get("ignore", False)
+            )
+            if ignore:
+                logger.info(
+                    f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to explicit ignore."
                 )
                 continue
 
@@ -389,7 +402,12 @@ class ServiceQuotasCollector:
                                 ].items()
                             ],
                         },
-                        "Period": 300,
+                        "Period": (
+                            service_quota.period["PeriodValue"]
+                            if service_quota.period
+                            and service_quota.period["PeriodUnit"] == "SECOND"
+                            else 300
+                        ),
                         "Stat": service_quota.usage_metric[
                             "MetricStatisticRecommendation"
                         ],
@@ -431,8 +449,12 @@ class ServiceQuotasCollector:
             if (
                 service_quota.value
                 and service_quota.metric_values
-                and service_quota.metric_values[0] < (service_quota.value * 10) / 100
+                and service_quota.metric_values[0]
+                < (service_quota.value * METRIC_FILTER_THRESHOLD_PERC) / 100
             ):
+                logger.info(
+                    f"Filtering out service quota {service_quota.service_name} / {service_quota.quota_name} because of low usage ({service_quota.metric_values[0]} < {METRIC_FILTER_THRESHOLD_PERC}% of {service_quota.value})"
+                )
                 service_quota.metric_values = []
 
     def _put_local_metrics(self, service_quota_group: List[ServiceQuota]) -> None:

@@ -121,6 +121,8 @@ def handler(event, _context):
         logger.error(f"No configuration found for account {account_id}. Exiting...")
         return
 
+    logger.info(f"Collecting service quotas for account {account_id}")
+
     assume_role_arn = f"arn:aws:iam::{account_id}:role/{config['role_name']}"
     remote_creds = _assume_role(assume_role_arn)
 
