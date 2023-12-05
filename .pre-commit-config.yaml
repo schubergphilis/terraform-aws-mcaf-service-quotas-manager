@@ -24,8 +24,6 @@ repos:
       - id: terraform_tflint
       - id: terraform_docs
       - id: terraform_validate
-        args:
-          - --hook-config=--retry-once-with-cleanup=true
   - repo: https://github.com/bridgecrewio/checkov.git
     rev: 3.0.37
     hooks:
