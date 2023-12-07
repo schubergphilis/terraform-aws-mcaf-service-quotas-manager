@@ -15,7 +15,7 @@ class TestServiceQuotasIncreaser:
         service_quotas,
         service_quotas_list_applied_quotas_lambda,
     ):
-        increaser = ServiceQuotasIncreaser(support, service_quotas)
+        increaser = ServiceQuotasIncreaser(support, service_quotas, "999999999999")
         service_quota = ServiceQuota(
             **convert_dict(service_quotas_list_applied_quotas_lambda["Quotas"][0])
         )

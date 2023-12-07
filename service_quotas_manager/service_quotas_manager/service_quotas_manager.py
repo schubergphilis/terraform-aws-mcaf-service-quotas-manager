@@ -1,5 +1,4 @@
 import json
-import logging
 from typing import Dict, Optional
 
 import boto3
@@ -8,10 +7,7 @@ from botocore.exceptions import ClientError
 from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
 from service_quotas_manager.service_quotas_collector import ServiceQuotasCollector
 from service_quotas_manager.service_quotas_increaser import ServiceQuotasIncreaser
-from service_quotas_manager.util import convert_dict
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from service_quotas_manager.util import convert_dict, logger
 
 
 def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> Dict:
@@ -111,7 +107,9 @@ def handler(event, _context):
         return
 
     if "action" not in event:
-        logger.error("No action specified in event. Exiting...")
+        logger.error(
+            f"No action specified in event for account {account_id}. Exiting..."
+        )
         return
 
     config = _load_config_from_s3(
@@ -120,8 +118,6 @@ def handler(event, _context):
     if not config:
         logger.error(f"No configuration found for account {account_id}. Exiting...")
         return
-
-    logger.info(f"Collecting service quotas for account {account_id}")
 
     assume_role_arn = f"arn:aws:iam::{account_id}:role/{config['role_name']}"
     remote_creds = _assume_role(assume_role_arn)
@@ -149,13 +145,15 @@ def handler(event, _context):
         )
 
         sqi = ServiceQuotasIncreaser(
-            _get_remote_client("support", remote_creds), remote_service_quota_client
+            _get_remote_client("support", remote_creds),
+            remote_service_quota_client,
+            account_id,
         )
         sqi.request_service_quota_increase(
             _get_increase_rule_from_config(config, service_quota)
         )
     else:
         logger.error(
-            f"Action {event['action']} not recognized as valid action. Exiting..."
+            f"Action {event['action']} not recognized as valid action for account {account_id}. Exiting..."
         )
         return

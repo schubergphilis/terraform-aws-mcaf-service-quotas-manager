@@ -1,18 +1,16 @@
-import logging
 from typing import List
 
 from botocore.exceptions import ClientError
 
 from service_quotas_manager.entities import ServiceQuotaIncreaseRule
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from service_quotas_manager.util import logger
 
 
 class ServiceQuotasIncreaser:
-    def __init__(self, remote_support_client, remote_service_quota_client):
+    def __init__(self, remote_support_client, remote_service_quota_client, account_id):
         self.remote_support_client = remote_support_client
         self.remote_service_quota_client = remote_service_quota_client
+        self.account_id = account_id
 
     def request_service_quota_increase(
         self, increase_rule: ServiceQuotaIncreaseRule
@@ -27,7 +25,7 @@ class ServiceQuotasIncreaser:
             desired_value *= float(increase_rule.factor)
 
         logger.info(
-            f"Filing a quota increase request for {increase_rule.service_quota.service_name} / {increase_rule.service_quota.quota_name} to increase quota to {desired_value}"
+            f"[{self.account_id}] Filing a quota increase request for {increase_rule.service_quota.service_name} / {increase_rule.service_quota.quota_name} to increase quota to {desired_value}"
         )
 
         requested_quota = (
@@ -38,7 +36,7 @@ class ServiceQuotasIncreaser:
             )
         )
         logger.info(
-            f"Quota increase for {increase_rule.service_quota.service_name} / {increase_rule.service_quota.quota_name} has been requested in case {requested_quota['RequestedQuota']['CaseId']}"
+            f"[{self.account_id}] Quota increase for {increase_rule.service_quota.service_name} / {increase_rule.service_quota.quota_name} has been requested in case {requested_quota['RequestedQuota']['CaseId']}"
         )
 
         self._update_support_case(
@@ -55,14 +53,16 @@ class ServiceQuotasIncreaser:
             communicationBody=motivation,
             ccEmailAddresses=cc_mail_addresses,
         )
-        logger.info(f"Case {case_id} has been updated with a motivation.")
+        logger.info(
+            f"[{self.account_id}] Case {case_id} has been updated with a motivation."
+        )
 
     def _check_preconditions(self, increase_rule: ServiceQuotaIncreaseRule) -> bool:
         # Check whether there's configuration to know how to increase the quota.
         # Makes no sense to try to increase a quota if you don't know what to ask.
         if not increase_rule:
             logger.info(
-                f"Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} has no increase configuration. Exiting..."
+                f"[{self.account_id}] Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} has no increase configuration. Exiting..."
             )
             return False
 
@@ -70,7 +70,7 @@ class ServiceQuotasIncreaser:
         # Makes no sense to try to increase a non-adjustable quota.
         if not increase_rule.service_quota.adjustable:
             logger.info(
-                f"Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} is not adjustable. Exiting..."
+                f"[{self.account_id}] Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} is not adjustable. Exiting..."
             )
             return False
 
@@ -82,7 +82,7 @@ class ServiceQuotasIncreaser:
         except ClientError as ex:
             if ex.response["Error"]["Code"] == "SubscriptionRequiredException":
                 logger.error(
-                    "This account has no valid support plan to use the Support API. A quota increase request could not be placed."
+                    f"[{self.account_id}] This account has no valid support plan to use the Support API. A quota increase request could not be placed."
                 )
                 return False
             else:
@@ -105,7 +105,7 @@ class ServiceQuotasIncreaser:
             or len(cases_by_status.get("CASE_OPENED", [])) > 0
         ):
             logger.info(
-                f"Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} still has pending quota increase requests. Exiting..."
+                f"[{self.account_id}] Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} still has pending quota increase requests. Exiting..."
             )
             return False
 
