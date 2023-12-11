@@ -1,12 +1,12 @@
 module "service_quotas_manager_bucket" {
-  source = "github.com/schubergphilis/terraform-aws-mcaf-s3?ref=v0.11.0"
+  source  = "schubergphilis/mcaf-s3/aws"
+  version = "~> 0.11.0"
 
-  #checkov:skip=CKV_AWS_21:Ensure all data stored in the S3 bucket have versioning enabled
-  #checkov:skip=CKV_TF_1:Ensure Terraform module sources use a commit hash
-  #checkov:skip=CKV_AWS_300:Ensure S3 lifecycle configuration sets period for aborting failed uploads
-  name          = "${var.bucket_prefix}service-quotas-manager-${data.aws_region.current.name}"
+  name          = var.bucket_name != null ? var.bucket_name : "${var.bucket_prefix}service-quotas-manager-${data.aws_region.current.name}"
   force_destroy = true
-  kms_key_arn   = var.bucket_kms_key_arn
+  kms_key_arn   = var.kms_key_arn
+  versioning    = true
+  tags          = var.tags
 
   lifecycle_rule = [
     {
@@ -16,10 +16,12 @@ module "service_quotas_manager_bucket" {
       abort_incomplete_multipart_upload = {
         days_after_initiation = 7
       }
+
+      noncurrent_version_expiration = {
+        noncurrent_days = 14
+      }
     }
   ]
-
-  tags = var.tags
 }
 
 resource "aws_s3_object" "service_quotas_manager_config" {
