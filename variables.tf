@@ -1,18 +1,25 @@
-variable "bucket_kms_key_arn" {
-  description = "The ARN of the KMS key to use with the configuration S3 bucket"
-  type        = string
-  default     = null
-}
-
 variable "bucket_prefix" {
   description = "The optional prefix for the service quota manager configuration bucket"
   type        = string
   default     = ""
 }
 
+variable "bucket_name" {
+  description = "The optional name for the service quota manager configuration bucket, overrides bucket_prefix"
+  type        = string
+  default     = null
+}
+
+variable "kms_key_arn" {
+  description = "The ARN of the KMS key to use with the configuration S3 bucket and scheduler"
+  type        = string
+  default     = null
+}
+
 variable "quotas_manager_configuration" {
   description = "The configuration for the service quota manager"
-  type = map(object({
+  type = list(object({
+    accountid         = number
     role_name         = string
     selected_services = optional(list(string), [])
     alerting_config = optional(object({
@@ -40,12 +47,11 @@ variable "quotas_manager_configuration" {
       cc_mail_addresses = list(string)
     }))), {})
   }))
-}
 
-variable "schedule_kms_key_arn" {
-  description = "The ARN of the KMS key to use with the configuration S3 bucket"
-  type        = string
-  default     = null
+  validation {
+    condition     = length(var.quotas_manager_configuration) == length(distinct(var.quotas_manager_configuration[*].accountid))
+    error_message = "quotas manager configuration items needs to have a unique accountid defined"
+  }
 }
 
 variable "schedule_timezone" {

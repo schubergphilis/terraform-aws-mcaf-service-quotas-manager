@@ -106,15 +106,16 @@ A minimal setup can be done like this:
 module "service_quotas_manager" {
   source = github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v1.0.0
 
-  quotas_manager_configuration = {
-    "123456789000" = {
+  quotas_manager_configuration = [
+    {
+      accountid = "123456789000"
       role_name = "ServiceQuotaManagerRole"
       alerting_config = {
         default_threshold_perc = 75
         notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
       }
     }
-  }
+  ]
 }
 ```
 
@@ -126,50 +127,50 @@ See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-m
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6.0 |
-| <a name="requirement_archive"></a> [archive](#requirement\_archive) | 2.4.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.25.0 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.4.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.25.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.4.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.25.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.4.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.25.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_service_quotas_manager_bucket"></a> [service\_quotas\_manager\_bucket](#module\_service\_quotas\_manager\_bucket) | github.com/schubergphilis/terraform-aws-mcaf-s3 | v0.11.0 |
-| <a name="module_service_quotas_manager_lambda"></a> [service\_quotas\_manager\_lambda](#module\_service\_quotas\_manager\_lambda) | github.com/schubergphilis/terraform-aws-mcaf-lambda | v1.1.2 |
+| <a name="module_service_quotas_manager_bucket"></a> [service\_quotas\_manager\_bucket](#module\_service\_quotas\_manager\_bucket) | schubergphilis/mcaf-s3/aws | ~> 0.11.0 |
+| <a name="module_service_quotas_manager_lambda"></a> [service\_quotas\_manager\_lambda](#module\_service\_quotas\_manager\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 1.1.2 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/cloudwatch_event_rule) | resource |
-| [aws_cloudwatch_event_target.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/cloudwatch_event_target) | resource |
-| [aws_iam_policy.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_policy) | resource |
-| [aws_iam_role.service_quotas_manager_execution_role](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role) | resource |
-| [aws_iam_role.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy.service_quotas_manager_execution_policy](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role_policy) | resource |
-| [aws_iam_role_policy_attachment.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_lambda_permission.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/lambda_permission) | resource |
-| [aws_s3_object.service_quotas_manager_config](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/s3_object) | resource |
-| [aws_scheduler_schedule.sqm_collect_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/scheduler_schedule) | resource |
-| [aws_scheduler_schedule_group.service_quotas_manager](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/resources/scheduler_schedule_group) | resource |
-| [archive_file.service_quotas_manager_source](https://registry.terraform.io/providers/hashicorp/archive/2.4.0/docs/data-sources/file) | data source |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/data-sources/caller_identity) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.25.0/docs/data-sources/region) | data source |
+| [aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_iam_policy.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.service_quotas_manager_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.service_quotas_manager_execution_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy_attachment.service_quotas_manager_schedules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_lambda_permission.trigger_service_quotas_manager_on_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [aws_s3_object.service_quotas_manager_config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
+| [aws_scheduler_schedule.sqm_collect_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/scheduler_schedule) | resource |
+| [aws_scheduler_schedule_group.service_quotas_manager](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/scheduler_schedule_group) | resource |
+| [archive_file.service_quotas_manager_source](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_bucket_kms_key_arn"></a> [bucket\_kms\_key\_arn](#input\_bucket\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket | `string` | `null` | no |
+| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>list(object({<br>    accountid         = number<br>    role_name         = string<br>    selected_services = optional(list(string), [])<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = optional(number, null)<br>              ignore         = optional(bool, false)<br>            })<br>          )<br>        ), {}<br>      )<br>      }), {<br>      default_threshold_perc = 75<br>      notification_topic_arn = ""<br>      rules                  = {}<br>    })<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))), {})<br>  }))</pre> | n/a | yes |
+| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | The optional name for the service quota manager configuration bucket, overrides bucket\_prefix | `string` | `null` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | The optional prefix for the service quota manager configuration bucket | `string` | `""` | no |
-| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>map(object({<br>    role_name         = string<br>    selected_services = optional(list(string), [])<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = optional(number, null)<br>              ignore         = optional(bool, false)<br>            })<br>          )<br>        ), {}<br>      )<br>      }), {<br>      default_threshold_perc = 75<br>      notification_topic_arn = ""<br>      rules                  = {}<br>    })<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))), {})<br>  }))</pre> | n/a | yes |
-| <a name="input_schedule_kms_key_arn"></a> [schedule\_kms\_key\_arn](#input\_schedule\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket | `string` | `null` | no |
+| <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket and scheduler | `string` | `null` | no |
 | <a name="input_schedule_timezone"></a> [schedule\_timezone](#input\_schedule\_timezone) | The timezone to schedule service quota metric collection in | `string` | `"Europe/Amsterdam"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to assign to resources created by this module | `map(string)` | `{}` | no |
 

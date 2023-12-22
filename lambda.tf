@@ -5,9 +5,9 @@ data "archive_file" "service_quotas_manager_source" {
 }
 
 module "service_quotas_manager_lambda" {
-  source = "github.com/schubergphilis/terraform-aws-mcaf-lambda?ref=v1.1.2"
+  source  = "schubergphilis/mcaf-lambda/aws"
+  version = "~> 1.1.2"
 
-  #checkov:skip=CKV_TF_1:Ensure Terraform module sources use a commit hash
   #checkov:skip=CKV_AWS_338:Ensure CloudWatch log groups retains logs for at least 1 year
   filename = data.archive_file.service_quotas_manager_source.output_path
 

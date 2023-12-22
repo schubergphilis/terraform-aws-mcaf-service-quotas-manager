@@ -3,6 +3,7 @@ resource "aws_cloudwatch_event_rule" "trigger_service_quotas_manager_on_alarm" {
 
   name        = "ServiceQuotaManagerIncreaserOnAlarm"
   description = "Event rule to trigger the Service Quota Manager if a quota reaches its configured threshold."
+  tags        = var.tags
 
   event_pattern = jsonencode({
     "source" : ["aws.cloudwatch"],
@@ -16,8 +17,6 @@ resource "aws_cloudwatch_event_rule" "trigger_service_quotas_manager_on_alarm" {
       }
     }
   })
-
-  tags = var.tags
 }
 
 resource "aws_cloudwatch_event_target" "trigger_service_quotas_manager_on_alarm" {
@@ -57,9 +56,9 @@ resource "aws_scheduler_schedule_group" "service_quotas_manager" {
 resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
   for_each = var.quotas_manager_configuration
 
-  name                         = "sqm-collect-service-quotas-${each.key}"
+  name                         = "sqm-collect-service-quotas-${each.value.accountid}"
   group_name                   = aws_scheduler_schedule_group.service_quotas_manager.name
-  kms_key_arn                  = var.schedule_kms_key_arn
+  kms_key_arn                  = var.kms_key_arn
   schedule_expression          = "cron(0 * ? * * *)"
   schedule_expression_timezone = var.schedule_timezone
 
@@ -83,21 +82,21 @@ resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
 
 resource "aws_iam_role" "service_quotas_manager_schedules" {
   name = "ServiceQuotaManagerSchedulerRole-${data.aws_region.current.name}"
+  tags = var.tags
 
   assume_role_policy = templatefile("${path.module}/templates/service_quotas_manager_scheduler_assume_role_policy.json.tpl", {
     account_id = data.aws_caller_identity.current.account_id
   })
-
-  tags = var.tags
 }
 
 resource "aws_iam_policy" "service_quotas_manager_schedules" {
   name = "ServiceQuotaManagerSchedulerPolicy-${data.aws_region.current.name}"
   path = "/"
+  tags = var.tags
+
   policy = templatefile("${path.module}/templates/service_quotas_manager_scheduler_policy.json.tpl", {
     service_quotas_manager_lambda_arn = module.service_quotas_manager_lambda.arn
   })
-  tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "service_quotas_manager_schedules" {

@@ -11,12 +11,20 @@ from service_quotas_manager.util import convert_dict, logger
 
 
 def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> Dict:
+    """Read account specific configuration from S3 object."""
     s3_obj = s3_client.get_object(Bucket=bucket, Key=key)
     config = json.loads(s3_obj["Body"].read().decode("utf-8"))
-    return config.get(account_id, {})
+
+    configuration_by_account = {
+        conf["accountid"]: conf
+        for conf in config
+    }
+
+    return configuration_by_account.get(account_id, {})
 
 
 def _assume_role(role_arn: str) -> Dict:
+    """Assume a role in a different account and return temporary credentials."""
     sts_client = _get_local_client("sts")
 
     try:
@@ -39,6 +47,8 @@ def _assume_role(role_arn: str) -> Dict:
 
 
 def _get_account_id_from_alarm(alarm_details: Dict) -> Optional[str]:
+    """Retrieve the account id from payload if the Lambda is triggered by an alarm."""
+
     if not alarm_details:
         return
     dimensions = alarm_details["configuration"]["metrics"][0]["metricStat"]["metric"][
@@ -50,6 +60,8 @@ def _get_account_id_from_alarm(alarm_details: Dict) -> Optional[str]:
 def _get_increase_rule_from_config(
     config: Dict, service_quota: ServiceQuota
 ) -> Optional[ServiceQuotaIncreaseRule]:
+    """Retrieve an increase rule from config if the Lambda is triggered by an alarm."""
+
     increase_rule_def = (
         config.get("quota_increase_config", {})
         .get(service_quota.service_name, {})
@@ -65,6 +77,8 @@ def _get_increase_rule_from_config(
 def _get_service_quota_from_alarm(
     alarm_details: Dict, remote_service_quota_client
 ) -> ServiceQuota:
+    """Find a service quota based on payload if the Lambda is triggered by an alarm."""
+
     dimensions = alarm_details["configuration"]["metrics"][0]["metricStat"]["metric"][
         "dimensions"
     ]
@@ -91,16 +105,33 @@ def _get_service_quota_from_alarm(
 def _get_remote_client(
     client_name: str, credentials: Dict, region: Optional[str] = None
 ):
+    """Create a boto3 client based on credentials from an assumed role."""
+
     if region:
         credentials["region_name"] = region
     return boto3.client(client_name, **credentials)
 
 
 def _get_local_client(client_name: str):
+    """Create a boto3 client based on Lambda invocation credentials."""
+
     return boto3.client(client_name)
 
 
 def handler(event, _context):
+    """
+    Lambda Entrypoint
+
+    This lambda can be triggered in two ways:
+
+    1. Schedule based. The action is to collect metrics from remote accounts, store
+    them in local CloudWatch Metrics and to manage alarms on these metrics.
+
+    2. By an alarm if one of the alarms from method 1 exceeds set thresholds.
+    The action in that case is to see if there's a rule to apply for a service
+    quote increase request.
+    """
+
     account_id = event.get("account_id", _get_account_id_from_alarm(event.get("alarm")))
     if not account_id:
         logger.error("No account ID could be found in event. Exiting...")
