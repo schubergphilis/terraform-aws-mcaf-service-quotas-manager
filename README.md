@@ -106,15 +106,16 @@ A minimal setup can be done like this:
 module "service_quotas_manager" {
   source = github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v1.0.0
 
-  quotas_manager_configuration = {
-    "123456789000" = {
+  quotas_manager_configuration = [
+    {
+      accountid = "123456789000"
       role_name = "ServiceQuotaManagerRole"
       alerting_config = {
         default_threshold_perc = 75
         notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
       }
     }
-  }
+  ]
 }
 ```
 

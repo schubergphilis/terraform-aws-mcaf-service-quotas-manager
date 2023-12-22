@@ -10,8 +10,9 @@ run "basic" {
   variables {
     bucket_prefix = "sqmtest-basic-"
 
-    quotas_manager_configuration = {
-      "123456789000" = {
+    quotas_manager_configuration = [
+      {
+        accountid = "123456789000"
         role_name = "ServiceQuotaManagerRole"
         selected_services = [
           "AWS Lambda",
@@ -21,7 +22,7 @@ run "basic" {
           notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
         }
       }
-    }
+    ]
   }
 
   assert {
@@ -45,8 +46,9 @@ run "increase_config" {
 
   variables {
     bucket_prefix = "sqmtest-increase-config-"
-    quotas_manager_configuration = {
-      "123456789000" = {
+    quotas_manager_configuration = [
+      {
+        accountid = "123456789000"
         role_name = "ServiceQuotaManagerRole"
         selected_services = [
           "Amazon Virtual Private Cloud (Amazon VPC)",
@@ -76,7 +78,7 @@ run "increase_config" {
           }
         }
       }
-    }
+    ]
   }
 
   assert {
@@ -101,15 +103,17 @@ run "multi_account" {
   variables {
     bucket_prefix = "sqmtest-multi-account-"
 
-    quotas_manager_configuration = {
-      "123456789000" = {
+    quotas_manager_configuration = [
+      {
+        accountid = "123456789000"
         role_name = "ServiceQuotaManagerRole"
         alerting_config = {
           default_threshold_perc = 75
           notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
         }
-      }
-      "123456789001" = {
+      },
+      {
+        accountid = "123456789001"
         role_name = "ServiceQuotaManagerRole"
         selected_services = [
           "Amazon Virtual Private Cloud (Amazon VPC)",
@@ -120,7 +124,7 @@ run "multi_account" {
           notification_topic_arn = "arn:aws:sns:eu-west-1:123456789001:service-quotas-manager-notifications"
         }
       }
-    }
+    ]
   }
 
   assert {
