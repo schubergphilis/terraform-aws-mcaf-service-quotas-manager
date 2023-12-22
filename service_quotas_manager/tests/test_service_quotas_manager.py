@@ -26,7 +26,7 @@ class TestServiceQuotasIncreaser:
                         "metricStat": {
                             "metric": {
                                 "dimensions": {
-                                    "AccountId": account_id,
+                                    "account_id": account_id,
                                     "QuotaCode": "L-123456",
                                     "ServiceCode": "lambda",
                                 }
@@ -45,7 +45,7 @@ class TestServiceQuotasIncreaser:
             {
                 "Body": BytesIO(
                     json.dumps(
-                        [{"accountid": "123456789000", "foo": "bar"}, {"accountid": "123456789001", "bar": "foo"}]
+                        [{"account_id": "123456789000", "foo": "bar"}, {"account_id": "123456789001", "bar": "foo"}]
                     ).encode()
                 )
             },
@@ -54,7 +54,7 @@ class TestServiceQuotasIncreaser:
         stubbed_s3.activate()
 
         config = _load_config_from_s3(s3, "bucket_name", "bucket_key", "123456789000")
-        assert config == {"accountid": "123456789000", "foo": "bar"}
+        assert config == {"account_id": "123456789000", "foo": "bar"}
 
     def test_can_get_increase_rule_from_config(
         self, service_quotas_list_applied_quotas_lambda
@@ -110,7 +110,7 @@ class TestServiceQuotasIncreaser:
                         "metricStat": {
                             "metric": {
                                 "dimensions": {
-                                    "AccountId": "123456789000",
+                                    "account_id": "123456789000",
                                     "QuotaCode": "L-123456",
                                     "ServiceCode": "lambda",
                                 }
@@ -144,7 +144,7 @@ class TestServiceQuotasIncreaser:
                         "metricStat": {
                             "metric": {
                                 "dimensions": {
-                                    "AccountId": "123456789000",
+                                    "account_id": "123456789000",
                                     "QuotaCode": "L-123456",
                                     "ServiceCode": "lambda",
                                 }
@@ -191,7 +191,7 @@ class TestServiceQuotasIncreaser:
             {
                 "Body": BytesIO(
                     json.dumps(
-                        [{"accountid": "123456789000", "role_name": "ServiceQuotaManager"}]
+                        [{"account_id": "123456789000", "role_name": "ServiceQuotaManager"}]
                     ).encode()
                 )
             },
@@ -242,7 +242,7 @@ class TestServiceQuotasIncreaser:
         stubbed_s3 = Stubber(s3)
         stubbed_s3.add_response(
             "get_object",
-            {"Body": BytesIO(json.dumps([{"accountid": "123456789000", "foo": "bar"}]).encode())},
+            {"Body": BytesIO(json.dumps([{"account_id": "123456789000", "foo": "bar"}]).encode())},
             {"Bucket": "bucket_name", "Key": "bucket_key"},
         )
         stubbed_s3.activate()

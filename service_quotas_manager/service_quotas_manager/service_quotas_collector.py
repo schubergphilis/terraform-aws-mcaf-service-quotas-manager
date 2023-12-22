@@ -117,11 +117,11 @@ class ServiceQuotasCollector:
                     for dimension in alarm["Dimensions"]
                 }
 
-                if nd["AccountId"] != self.account_id:
+                if nd["account_id"] != self.account_id:
                     continue
 
                 alarms_by_service_quota[
-                    f"{nd['ServiceCode']}#{nd['QuotaCode']}#{nd['AccountId']}"
+                    f"{nd['ServiceCode']}#{nd['QuotaCode']}#{nd['account_id']}"
                 ] = alarm
 
         self._upsert_alarms(alerting_config, alarms_by_service_quota)
@@ -188,7 +188,7 @@ class ServiceQuotasCollector:
                     {"Name": "ServiceCode", "Value": service_quota.service_code},
                     {"Name": "QuotaCode", "Value": service_quota.quota_code},
                     {"Name": "QuotaName", "Value": service_quota.quota_name},
-                    {"Name": "AccountId", "Value": self.account_id},
+                    {"Name": "account_id", "Value": self.account_id},
                 ],
                 "Period": 3600,
                 "EvaluationPeriods": 3,
@@ -533,7 +533,7 @@ class ServiceQuotasCollector:
                 {
                     "MetricName": LOCAL_METRIC_NAME,
                     "Dimensions": [
-                        {"Name": "AccountId", "Value": self.account_id},
+                        {"Name": "account_id", "Value": self.account_id},
                         {"Name": "ServiceCode", "Value": service_quota.service_code},
                         {"Name": "QuotaName", "Value": service_quota.quota_name},
                         {"Name": "QuotaCode", "Value": service_quota.quota_code},

@@ -12,7 +12,7 @@ run "basic" {
 
     quotas_manager_configuration = [
       {
-        accountid = "123456789000"
+        account_id = "123456789000"
         role_name = "ServiceQuotaManagerRole"
         selected_services = [
           "AWS Lambda",
@@ -48,7 +48,7 @@ run "increase_config" {
     bucket_prefix = "sqmtest-increase-config-"
     quotas_manager_configuration = [
       {
-        accountid = "123456789000"
+        account_id = "123456789000"
         role_name = "ServiceQuotaManagerRole"
         selected_services = [
           "Amazon Virtual Private Cloud (Amazon VPC)",
@@ -105,7 +105,7 @@ run "multi_account" {
 
     quotas_manager_configuration = [
       {
-        accountid = "123456789000"
+        account_id = "123456789000"
         role_name = "ServiceQuotaManagerRole"
         alerting_config = {
           default_threshold_perc = 75
@@ -113,7 +113,7 @@ run "multi_account" {
         }
       },
       {
-        accountid = "123456789001"
+        account_id = "123456789001"
         role_name = "ServiceQuotaManagerRole"
         selected_services = [
           "Amazon Virtual Private Cloud (Amazon VPC)",

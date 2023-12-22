@@ -16,7 +16,7 @@ def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> D
     config = json.loads(s3_obj["Body"].read().decode("utf-8"))
 
     configuration_by_account = {
-        conf["accountid"]: conf
+        conf["account_id"]: conf
         for conf in config
     }
 
@@ -54,7 +54,7 @@ def _get_account_id_from_alarm(alarm_details: Dict) -> Optional[str]:
     dimensions = alarm_details["configuration"]["metrics"][0]["metricStat"]["metric"][
         "dimensions"
     ]
-    return dimensions.get("AccountId")
+    return dimensions.get("account_id")
 
 
 def _get_increase_rule_from_config(

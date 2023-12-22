@@ -19,7 +19,7 @@ variable "kms_key_arn" {
 variable "quotas_manager_configuration" {
   description = "The configuration for the service quota manager"
   type = list(object({
-    accountid         = number
+    account_id        = string
     role_name         = string
     selected_services = optional(list(string), [])
     alerting_config = optional(object({
@@ -49,8 +49,8 @@ variable "quotas_manager_configuration" {
   }))
 
   validation {
-    condition     = length(var.quotas_manager_configuration) == length(distinct(var.quotas_manager_configuration[*].accountid))
-    error_message = "quotas manager configuration items needs to have a unique accountid defined"
+    condition     = length(var.quotas_manager_configuration) == length(distinct(var.quotas_manager_configuration[*].account_id))
+    error_message = "quotas manager configuration items needs to have a unique account_id defined"
   }
 }
 

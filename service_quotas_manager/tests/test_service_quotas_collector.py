@@ -47,7 +47,7 @@ class TestServiceQuotasCollector:
                                 "Name": "QuotaName",
                                 "Value": "Running Dedicated r6idn Hosts",
                             },
-                            {"Name": "AccountId", "Value": "123456789000"},
+                            {"Name": "account_id", "Value": "123456789000"},
                         ],
                         "EvaluationPeriods": 3,
                         "MetricName": "ServiceQuotaUsage",
@@ -72,7 +72,7 @@ class TestServiceQuotasCollector:
                     {"Name": "ServiceCode", "Value": "lambda"},
                     {"Name": "QuotaCode", "Value": "L-B99A9384"},
                     {"Name": "QuotaName", "Value": "Concurrent executions"},
-                    {"Name": "AccountId", "Value": "123456789000"},
+                    {"Name": "account_id", "Value": "123456789000"},
                 ],
                 "EvaluationPeriods": 3,
                 "MetricName": "ServiceQuotaUsage",
@@ -150,7 +150,7 @@ class TestServiceQuotasCollector:
                 "MetricData": [
                     {
                         "Dimensions": [
-                            {"Name": "AccountId", "Value": "123456789000"},
+                            {"Name": "account_id", "Value": "123456789000"},
                             {"Name": "ServiceCode", "Value": "lambda"},
                             {
                                 "Name": "QuotaName",
@@ -254,7 +254,7 @@ class TestServiceQuotasCollector:
                 "MetricData": [
                     {
                         "Dimensions": [
-                            {"Name": "AccountId", "Value": "123456789000"},
+                            {"Name": "account_id", "Value": "123456789000"},
                             {"Name": "ServiceCode", "Value": "lambda"},
                             {
                                 "Name": "QuotaName",

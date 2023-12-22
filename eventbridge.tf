@@ -54,9 +54,9 @@ resource "aws_scheduler_schedule_group" "service_quotas_manager" {
 }
 
 resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
-  for_each = toset(var.quotas_manager_configuration)
+  for_each = { for cfg in var.quotas_manager_configuration : cfg.account_id => cfg }
 
-  name                         = "sqm-collect-service-quotas-${each.value.accountid}"
+  name                         = "sqm-collect-service-quotas-${each.key}"
   group_name                   = aws_scheduler_schedule_group.service_quotas_manager.name
   kms_key_arn                  = var.kms_key_arn
   schedule_expression          = "cron(0 * ? * * *)"
