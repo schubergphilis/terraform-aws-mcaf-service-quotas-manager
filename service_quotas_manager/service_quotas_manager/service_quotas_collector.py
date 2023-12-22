@@ -10,9 +10,14 @@ from botocore.exceptions import ClientError
 from service_quotas_manager.entities import ServiceQuota
 from service_quotas_manager.util import convert_dict, logger
 
+"""Do not try to match service quotas with these Cost Explorer items. They are too generic"""
 CE_ITEM_BLACKLIST = ["Tax", "EC2 - Other"]
+
+"""The namespace and metric name under which to store metrics in CloudWatch"""
 LOCAL_METRIC_NAMESPACE = "ServiceQuotaManager"
 LOCAL_METRIC_NAME = "ServiceQuotaUsage"
+
+"""The % threshold to filter metrics on. Usage below this threshold is ignored."""
 METRIC_FILTER_THRESHOLD_PERC = 10
 
 
@@ -41,6 +46,12 @@ class ServiceQuotasCollector:
         self.__sqid_cntr = 0
 
     def collect(self, selected_services: List[str]) -> None:
+        """
+        Collect metrics from a remote account via CloudWatch Metrics
+        or AWS Config. Store them as a custom metric in CloudWatch in the
+        local account.
+        """
+
         filtered_services = self._find_service_codes(selected_services)
         if not filtered_services:
             return
@@ -81,12 +92,18 @@ class ServiceQuotasCollector:
             self._service_quotas += service_quota_group
 
     def manage_alarms(self, alerting_config: Dict) -> None:
+        """
+        Create, update or delete alarms. Skip if there's no
+        alerting config or no service quotas to monitor.
+        """
+
         if not self._service_quotas:
             return
 
         if not alerting_config:
             return
 
+        # Retrieve all currently setup alarms for service quotas.
         alarms_paginator = self.local_cloudwatch_client.get_paginator("describe_alarms")
         alarms_pages = alarms_paginator.paginate(
             AlarmNamePrefix="Service Quota:", AlarmTypes=["MetricAlarm"]
@@ -111,6 +128,11 @@ class ServiceQuotasCollector:
         self._cleanup_alarms(alerting_config, alarms_by_service_quota)
 
     def _cleanup_alarms(self, alerting_config: Dict, alarms_by_service_quota: Dict):
+        """
+        Remove alarms that are no longer required. Reasons could be that the service
+        is no longer used or configured to be monitored.
+        """
+
         all_desired_alarm_codes = [
             f"{service_quota.service_code}#{service_quota.quota_code}#{self.account_id}"
             for service_quota in self._service_quotas
@@ -129,6 +151,11 @@ class ServiceQuotasCollector:
             self.local_cloudwatch_client.delete_alarms(AlarmNames=alarm_removal_group)
 
     def _upsert_alarms(self, alerting_config: Dict, alarms_by_service_quota: Dict):
+        """
+        Manages alarms that need to be created or alarms that require an update based
+        on how they are configured.
+        """
+
         for service_quota in self._service_quotas:
             if not self.__should_alarm(alerting_config, service_quota):
                 continue
@@ -206,6 +233,15 @@ class ServiceQuotasCollector:
     def __should_alarm(
         self, alerting_config: Dict, service_quota: ServiceQuota
     ) -> bool:
+        """
+        Determine if an alarm should be created for a service quota by checking
+        alert rules and metric values.
+
+        - A service quota without metrics is generally a service that is not used
+        and requires no alarm.
+        - A service quota that is set to be explicitly ignored requires no alarm.
+        """
+
         if not service_quota.metric_values:
             logger.info(
                 f"[{self.account_id}] Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing/filtered metrics."
@@ -228,8 +264,8 @@ class ServiceQuotasCollector:
     def __auto_detect_service_codes_from_billing(self) -> Optional[List[str]]:
         """
         Auto-detect services to monitor by retrieving a list
-        of services from Cost Explorer. This allows for more precise and
-        automated ways of adding services to monitor.
+        of services from Cost Explorer. This allows for automated ways of
+        adding services to monitor.
         """
 
         try:
@@ -259,6 +295,16 @@ class ServiceQuotasCollector:
         return ce_service_names
 
     def _find_service_codes(self, selected_services: Optional[List[str]]) -> List[Dict]:
+        """
+        Find the services to monitor quotas for. Services to monitor can be defined in two ways:
+
+        1. Manual through configuration passed in. That way a user can define and maintain a
+        list of services to monitor.
+
+        2. Automated by giving access to billing. That way the tool will derive services to monitor
+        from your billing statement. Not as accurate as manual, but more dynamic.
+        """
+
         auto_detected_services = []
         if not selected_services:
             auto_detected_services = self.__auto_detect_service_codes_from_billing()
@@ -302,8 +348,10 @@ class ServiceQuotasCollector:
 
     def _find_service_quotas(self, service_code: str) -> List[ServiceQuota]:
         """
-        Merge default quotas with applied quotas. Applied quotas
-        overrule default quotas.
+        Find the service quotas to manage based on the service they are part of.
+        Service quotas can be set to an AWS default or to an applied quota.
+        Merge default quotas with applied quotas. Applied quotas overrule default
+        quotas.
         """
 
         default_service_quota_paginator = (
@@ -358,6 +406,10 @@ class ServiceQuotasCollector:
     def _collect_config_remote_metrics(
         self, service_quota_group: List[ServiceQuota]
     ) -> None:
+        """
+        Collect the usage for various service quotas from the targeted account by using AWS Config.
+        """
+
         for service_quota in service_quota_group:
             collection_params = service_quota.collection_query["parameters"]
             expression_result = self.remote_config_client.select_resource_config(
@@ -391,6 +443,12 @@ class ServiceQuotasCollector:
     def _collect_cloudwatch_remote_metrics(
         self, service_quota_group: List[ServiceQuota]
     ) -> None:
+        """
+        Collect the usage for various service quotas from the targeted account by using CloudWatch Metrics.
+        Combine the metrics to collect in groups of 500 metrics to make the process more time- and
+        cost efficient.
+        """
+
         current_time = datetime.now()
         metric_data = self.remote_cloudwatch_client.get_metric_data(
             MetricDataQueries=[
@@ -463,6 +521,11 @@ class ServiceQuotasCollector:
                 service_quota.metric_values = []
 
     def _put_local_metrics(self, service_quota_group: List[ServiceQuota]) -> None:
+        """
+        Store the values collected for various service quotas as custom metrics in
+        CloudWatch. Combine the metrics of various service quotas in a single call
+        to make this process more time and cost efficient.
+        """
         current_time = datetime.now()
         self.local_cloudwatch_client.put_metric_data(
             Namespace=LOCAL_METRIC_NAMESPACE,
