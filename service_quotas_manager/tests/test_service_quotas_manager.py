@@ -26,7 +26,7 @@ class TestServiceQuotasIncreaser:
                         "metricStat": {
                             "metric": {
                                 "dimensions": {
-                                    "account_id": account_id,
+                                    "AccountId": account_id,
                                     "QuotaCode": "L-123456",
                                     "ServiceCode": "lambda",
                                 }
@@ -110,7 +110,7 @@ class TestServiceQuotasIncreaser:
                         "metricStat": {
                             "metric": {
                                 "dimensions": {
-                                    "account_id": "123456789000",
+                                    "AccountId": "123456789000",
                                     "QuotaCode": "L-123456",
                                     "ServiceCode": "lambda",
                                 }
@@ -144,7 +144,7 @@ class TestServiceQuotasIncreaser:
                         "metricStat": {
                             "metric": {
                                 "dimensions": {
-                                    "account_id": "123456789000",
+                                    "AccountId": "123456789000",
                                     "QuotaCode": "L-123456",
                                     "ServiceCode": "lambda",
                                 }

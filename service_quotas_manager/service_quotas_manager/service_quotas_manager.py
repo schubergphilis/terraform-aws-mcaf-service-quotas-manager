@@ -54,7 +54,7 @@ def _get_account_id_from_alarm(alarm_details: Dict) -> Optional[str]:
     dimensions = alarm_details["configuration"]["metrics"][0]["metricStat"]["metric"][
         "dimensions"
     ]
-    return dimensions.get("account_id")
+    return dimensions.get("AccountId")
 
 
 def _get_increase_rule_from_config(
