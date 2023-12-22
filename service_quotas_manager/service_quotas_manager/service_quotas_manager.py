@@ -14,7 +14,7 @@ def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> D
     """Read account specific configuration from S3 object."""
     s3_obj = s3_client.get_object(Bucket=bucket, Key=key)
     config = json.loads(s3_obj["Body"].read().decode("utf-8"))
-    print(config)
+
     configuration_by_account = {
         conf["accountid"]: conf
         for conf in config
