@@ -62,9 +62,39 @@
     }
   },
   "lambda": {
+    "L-01237738": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Lambda::Function'",
+        "jmespath": "max([].configuration.length(layers))"
+      },
+      "type": "config"
+    },
     "L-9FEE3D26": {
       "parameters": {
         "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    }
+  },
+  "rds": {
+    "L-272F1212": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::RDS::DBSnapshot' AND configuration.snapshotType = 'manual'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-7B6409FD": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::RDS::DBInstance'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-9B510759": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::RDS::DBClusterSnapshot' AND configuration.snapshotType = 'manual'",
         "jmespath": "length([])"
       },
       "type": "config"

@@ -54,6 +54,13 @@ class TestCustomCollectionQueries:
                     ]
                 },
             ],
+            "L-01237738": [
+                {"configuration": {"layers": ["a", "b"]}},
+                {"configuration": {"layers": ["a"]}},
+            ],
+            "L-7B6409FD": [{"resourceId": "db-001"}, {"resourceId": "db-002"}],
+            "L-272F1212": [{"resourceId": "snap-001"}, {"resourceId": "snap-002"}],
+            "L-9B510759": [{"resourceId": "snap-001"}, {"resourceId": "snap-002"}],
         }
 
     def test_custom_collection_queries(self, expression_results):
