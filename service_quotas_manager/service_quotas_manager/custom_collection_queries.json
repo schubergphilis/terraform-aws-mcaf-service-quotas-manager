@@ -1,16 +1,25 @@
 {
+  "dynamodb": {
+    "L-F98FE922": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::DynamoDB::Table'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    }
+  },
   "ec2": {
     "L-0263D0A3": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::EIP'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::EIP'",
+        "jmespath": "length([])"
       },
       "type": "config"
     },
     "L-FB451C26": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::LaunchTemplate'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::LaunchTemplate'",
+        "jmespath": "length([])"
       },
       "type": "config"
     }
@@ -18,8 +27,8 @@
   "lambda": {
     "L-9FEE3D26": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'",
+        "jmespath": "length([])"
       },
       "type": "config"
     }
@@ -27,8 +36,8 @@
   "s3": {
     "L-DC2B2D3D": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::S3::Bucket'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::S3::Bucket'",
+        "jmespath": "length([])"
       },
       "type": "config"
     }
@@ -36,50 +45,50 @@
   "vpc": {
     "L-407747CB": {
       "parameters": {
-        "columnIndex": 1,
-        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::Subnet' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC"
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::Subnet' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
+        "jmespath": "max([].\"COUNT(*)\")"
       },
       "type": "config"
     },
     "L-589F43AA": {
       "parameters": {
-        "columnIndex": 1,
-        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::RouteTable' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC"
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::RouteTable' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
+        "jmespath": "max([].\"COUNT(*)\")"
       },
       "type": "config"
     },
     "L-A4707A72": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::InternetGateway'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::InternetGateway'",
+        "jmespath": "length([])"
       },
       "type": "config"
     },
     "L-B4A6D682": {
       "parameters": {
-        "columnIndex": 1,
-        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkAcl' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC"
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkAcl' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
+        "jmespath": "max([].\"COUNT(*)\")"
       },
       "type": "config"
     },
     "L-DF5E4CA3": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::NetworkInterface'",
+        "jmespath": "length([])"
       },
       "type": "config"
     },
     "L-E79EC296": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::SecurityGroup'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::SecurityGroup'",
+        "jmespath": "length([])"
       },
       "type": "config"
     },
     "L-F678F1CE": {
       "parameters": {
-        "columnIndex": 0,
-        "expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::VPC'"
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::VPC'",
+        "jmespath": "length([])"
       },
       "type": "config"
     }

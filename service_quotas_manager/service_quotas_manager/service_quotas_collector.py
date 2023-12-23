@@ -5,7 +5,9 @@ from difflib import SequenceMatcher as SM
 from typing import Dict, List, Optional
 from unittest import TestCase
 
+import jmespath
 from botocore.exceptions import ClientError
+from jmespath.exceptions import ParseError
 
 from service_quotas_manager.entities import ServiceQuota
 from service_quotas_manager.util import convert_dict, logger
@@ -407,34 +409,55 @@ class ServiceQuotasCollector:
         self, service_quota_group: List[ServiceQuota]
     ) -> None:
         """
-        Collect the usage for various service quotas from the targeted account by using AWS Config.
+        Collect the usage for various service quotas from the targeted account by using
+        AWS Config. A JMESPath expression is then applied to the collected query result
+        to retrieve the value looked for.
+
+        See https://jmespath.org/ for how to use.
         """
 
         for service_quota in service_quota_group:
             collection_params = service_quota.collection_query["parameters"]
-            expression_result = self.remote_config_client.select_resource_config(
-                Expression=collection_params["expression"], Limit=1
+            expression_result_paginator = self.remote_config_client.get_paginator(
+                "select_resource_config"
+            )
+            expression_result_pages = expression_result_paginator.paginate(
+                Expression=collection_params["expression"]
             )
 
-            if len(expression_result.get("Results", [])) == 0:
+            expression_result = []
+            for expression_result_page in expression_result_pages:
+                expression_result += [
+                    json.loads(row) for row in expression_result_page.get("Results", [])
+                ]
+
+            if len(expression_result) == 0:
                 logger.info(
                     f"[{self.account_id}] The AWS config query ({collection_params['expression']}) yielded no results."
                 )
                 service_quota.metric_values = []
                 continue
 
-            columns = [
-                field["Name"]
-                for field in expression_result["QueryInfo"]["SelectFields"]
-            ]
-            selected_column = columns[collection_params["columnIndex"]]
-
-            values = [
-                round(
-                    float(json.loads(expression_result["Results"][0])[selected_column]),
-                    1,
+            try:
+                values = [
+                    round(
+                        float(
+                            jmespath.search(
+                                collection_params["jmespath"], expression_result
+                            )
+                        ),
+                        1,
+                    )
+                ]
+            except ParseError as p_ex:
+                logger.warning(f"A JMESPath parse error occurred: {p_ex.msg}.")
+                values = []
+            except ValueError:
+                logger.warning(
+                    "The value retrieved from the JMESPath expression could not be converted to float."
                 )
-            ]
+                values = []
+
             logger.debug(
                 f"[{self.account_id}] Collected metric values from AWS Config for quota {service_quota.service_name} / {service_quota.service_name}: {values}"
             )
@@ -496,7 +519,7 @@ class ServiceQuotasCollector:
 
         for service_quota in service_quota_group:
             values = metric_data_by_id[service_quota.internal_id]
-            logger.info(
+            logger.debug(
                 f"[{self.account_id}] Collected metric values from CloudWatch for quota {service_quota.service_name} / {service_quota.quota_name}: {values}"
             )
             service_quota.metric_values = values

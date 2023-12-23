@@ -2,6 +2,7 @@ import json
 from typing import Dict, Optional
 
 import boto3
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from botocore.exceptions import ClientError
 
 from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
@@ -15,10 +16,7 @@ def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> D
     s3_obj = s3_client.get_object(Bucket=bucket, Key=key)
     config = json.loads(s3_obj["Body"].read().decode("utf-8"))
 
-    configuration_by_account = {
-        conf["account_id"]: conf
-        for conf in config
-    }
+    configuration_by_account = {conf["account_id"]: conf for conf in config}
 
     return configuration_by_account.get(account_id, {})
 
@@ -118,7 +116,8 @@ def _get_local_client(client_name: str):
     return boto3.client(client_name)
 
 
-def handler(event, _context):
+@logger.inject_lambda_context
+def handler(event: Dict, _context: LambdaContext):
     """
     Lambda Entrypoint
 

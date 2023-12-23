@@ -21,7 +21,17 @@ module "service_quotas_manager_lambda" {
   role_arn      = aws_iam_role.service_quotas_manager_execution_role.arn
   runtime       = "python3.11"
   timeout       = 300
-  tags          = var.tags
+
+  environment = {
+    POWERTOOLS_LOG_LEVEL    = "INFO"
+    POWERTOOLS_SERVICE_NAME = "ServiceQuotasManager"
+  }
+
+  layers = [
+    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:58"
+  ]
+
+  tags = var.tags
 }
 
 resource "aws_iam_role" "service_quotas_manager_execution_role" {

@@ -1,12 +1,11 @@
-import logging
-import os
 import re
 from typing import Dict
 
+from aws_lambda_powertools import Logger
+
 DICT_PATTERN = re.compile(r"(?<!^)(?=[A-Z])")
 
-logger = logging.getLogger()
-logger.setLevel(os.environ.get("LOG_LEVEL", logging.INFO))
+logger = Logger()
 
 
 def convert_dict(input: Dict) -> Dict:

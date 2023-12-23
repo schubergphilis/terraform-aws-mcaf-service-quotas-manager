@@ -45,7 +45,10 @@ class TestServiceQuotasIncreaser:
             {
                 "Body": BytesIO(
                     json.dumps(
-                        [{"account_id": "123456789000", "foo": "bar"}, {"account_id": "123456789001", "bar": "foo"}]
+                        [
+                            {"account_id": "123456789000", "foo": "bar"},
+                            {"account_id": "123456789001", "bar": "foo"},
+                        ]
                     ).encode()
                 )
             },
@@ -169,21 +172,21 @@ class TestServiceQuotasIncreaser:
         assert isinstance(quota, ServiceQuota)
         stubbed_service_quotas.assert_no_pending_responses()
 
-    def test_handler_exits_if_no_account_id_provided(self, caplog):
-        sqm_handler({}, None)
+    def test_handler_exits_if_no_account_id_provided(self, caplog, lambda_context):
+        sqm_handler({}, lambda_context)
         assert "No account ID could be found in event. Exiting..." in [
             r.message for r in caplog.records
         ]
 
-    def test_handler_exits_if_no_action_provided(self, caplog):
-        sqm_handler({"account_id": "123456789001"}, None)
+    def test_handler_exits_if_no_action_provided(self, caplog, lambda_context):
+        sqm_handler({"account_id": "123456789001"}, lambda_context)
         assert "No action specified in event for account 123456789001. Exiting..." in [
             r.message for r in caplog.records
         ]
 
     @patch("service_quotas_manager.service_quotas_manager._get_local_client")
     def test_handler_exits_if_no_valid_action_provided(
-        self, mocked_client, s3, sts, caplog
+        self, mocked_client, s3, sts, caplog, lambda_context
     ):
         stubbed_s3 = Stubber(s3)
         stubbed_s3.add_response(
@@ -191,7 +194,12 @@ class TestServiceQuotasIncreaser:
             {
                 "Body": BytesIO(
                     json.dumps(
-                        [{"account_id": "123456789000", "role_name": "ServiceQuotaManager"}]
+                        [
+                            {
+                                "account_id": "123456789000",
+                                "role_name": "ServiceQuotaManager",
+                            }
+                        ]
                     ).encode()
                 )
             },
@@ -227,7 +235,7 @@ class TestServiceQuotasIncreaser:
                 "config_key": "bucket_key",
                 "action": "FooBar",
             },
-            None,
+            lambda_context,
         )
 
         assert (
@@ -237,12 +245,16 @@ class TestServiceQuotasIncreaser:
 
     @patch("service_quotas_manager.service_quotas_manager._get_local_client")
     def test_handler_exits_if_no_config_for_account_could_be_found(
-        self, mocked_client, s3, caplog
+        self, mocked_client, s3, caplog, lambda_context
     ):
         stubbed_s3 = Stubber(s3)
         stubbed_s3.add_response(
             "get_object",
-            {"Body": BytesIO(json.dumps([{"account_id": "123456789000", "foo": "bar"}]).encode())},
+            {
+                "Body": BytesIO(
+                    json.dumps([{"account_id": "123456789000", "foo": "bar"}]).encode()
+                )
+            },
             {"Bucket": "bucket_name", "Key": "bucket_key"},
         )
         stubbed_s3.activate()
@@ -256,7 +268,7 @@ class TestServiceQuotasIncreaser:
                 "config_key": "bucket_key",
                 "action": "CollectServiceQuotas",
             },
-            None,
+            lambda_context,
         )
         assert "No configuration found for account 123456789001. Exiting..." in [
             r.message for r in caplog.records
