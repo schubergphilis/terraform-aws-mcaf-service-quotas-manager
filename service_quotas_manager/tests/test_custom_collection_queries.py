@@ -29,6 +29,31 @@ class TestCustomCollectionQueries:
             "L-E79EC296": [{"resourceId": "sg-001"}, {"resourceId": "sg-002"}],
             "L-F678F1CE": [{"resourceId": "vpc-001"}, {"resourceId": "vpc-002"}],
             "L-F98FE922": [{"resourceId": "tbl-001"}, {"resourceId": "tbl-002"}],
+            "L-F7858A77": [
+                {"configuration": {"globalSecondaryIndexes": ["a", "b"]}},
+                {"configuration": {"globalSecondaryIndexes": ["a"]}},
+            ],
+            "L-AA0FF27B": [
+                {"configuration": {"endpointConfiguration": {"types": ["REGIONAL"]}}},
+                {"configuration": {"endpointConfiguration": {"types": ["REGIONAL"]}}},
+            ],
+            "L-A966AB5C": [
+                {"configuration": {"endpointConfiguration": {"types": ["PRIVATE"]}}},
+                {"configuration": {"endpointConfiguration": {"types": ["PRIVATE"]}}},
+            ],
+            "L-B97207D0": [
+                {"configuration": {"endpointConfiguration": {"types": ["EDGE"]}}},
+                {"configuration": {"endpointConfiguration": {"types": ["EDGE"]}}},
+            ],
+            "L-379E48B0": [
+                {"relationships": [{"resourceType": "AWS::ApiGateway::Stage"}]},
+                {
+                    "relationships": [
+                        {"resourceType": "AWS::ApiGateway::Stage"},
+                        {"resourceType": "AWS::ApiGateway::Stage"},
+                    ]
+                },
+            ],
         }
 
     def test_custom_collection_queries(self, expression_results):

@@ -1,5 +1,42 @@
 {
+  "apigateway": {
+    "L-379E48B0": {
+      "parameters": {
+        "expression": "SELECT relationships WHERE resourceType = 'AWS::ApiGateway::RestApi'",
+        "jmespath": "max([].length(relationships[?resourceType == 'AWS::ApiGateway::Stage']))"
+      },
+      "type": "config"
+    },
+    "L-A966AB5C": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::ApiGateway::RestApi'",
+        "jmespath": "sum([].configuration.endpointConfiguration.length(types[?contains(@, 'PRIVATE')]))"
+      },
+      "type": "config"
+    },
+    "L-AA0FF27B": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::ApiGateway::RestApi'",
+        "jmespath": "sum([].configuration.endpointConfiguration.length(types[?contains(@, 'REGIONAL')]))"
+      },
+      "type": "config"
+    },
+    "L-B97207D0": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::ApiGateway::RestApi'",
+        "jmespath": "sum([].configuration.endpointConfiguration.length(types[?contains(@, 'EDGE')]))"
+      },
+      "type": "config"
+    }
+  },
   "dynamodb": {
+    "L-F7858A77": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::DynamoDB::Table'",
+        "jmespath": "max([].configuration.length(globalSecondaryIndexes))"
+      },
+      "type": "config"
+    },
     "L-F98FE922": {
       "parameters": {
         "expression": "SELECT resourceId WHERE resourceType = 'AWS::DynamoDB::Table'",
