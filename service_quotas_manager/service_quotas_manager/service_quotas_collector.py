@@ -243,7 +243,7 @@ class ServiceQuotasCollector:
         """
 
         if not service_quota.metric_values:
-            logger.info(
+            logger.debug(
                 f"[{self.account_id}] Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing/filtered metrics."
             )
             return False
@@ -435,7 +435,7 @@ class ServiceQuotasCollector:
                     1,
                 )
             ]
-            logger.info(
+            logger.debug(
                 f"[{self.account_id}] Collected metric values from AWS Config for quota {service_quota.service_name} / {service_quota.service_name}: {values}"
             )
             service_quota.metric_values = values
