@@ -2,7 +2,7 @@ import json
 import time
 from datetime import datetime, timedelta
 from difflib import SequenceMatcher as SM
-from typing import Dict, List, Optional
+from typing import Dict, Final, List, Optional
 from unittest import TestCase
 
 import jmespath
@@ -12,15 +12,17 @@ from jmespath.exceptions import ParseError
 from service_quotas_manager.entities import ServiceQuota
 from service_quotas_manager.util import convert_dict, logger
 
-"""Do not try to match service quotas with these Cost Explorer items. They are too generic"""
-CE_ITEM_BLACKLIST = ["Tax", "EC2 - Other"]
+CE_ITEM_BLACKLIST: Final[List["str"]] = ["Tax", "EC2 - Other"]
+"""Filter out these too generic Cost Explorer items"""
 
-"""The namespace and metric name under which to store metrics in CloudWatch"""
-LOCAL_METRIC_NAMESPACE = "ServiceQuotaManager"
-LOCAL_METRIC_NAME = "ServiceQuotaUsage"
+LOCAL_METRIC_NAMESPACE: Final[str] = "ServiceQuotaManager"
+"""The namespace under which to store metrics in CloudWatch"""
 
-"""The % threshold to filter metrics on. Usage below this threshold is ignored."""
-METRIC_FILTER_THRESHOLD_PERC = 10
+LOCAL_METRIC_NAME: Final[str] = "ServiceQuotaUsage"
+"""The metric name under which to store metrics in CloudWatch"""
+
+METRIC_FILTER_THRESHOLD_PERC: Final[int] = 10
+"""Quota usage below this % of applied quota is ignored."""
 
 
 class ServiceQuotasCollector:
@@ -450,11 +452,13 @@ class ServiceQuotasCollector:
                     )
                 ]
             except ParseError as p_ex:
-                logger.warning(f"A JMESPath parse error occurred: {p_ex.msg}.")
+                logger.warning(
+                    f"A JMESPath parse error occurred ({service_quota.service_code} / {service_quota.quota_code}): {p_ex.msg}."
+                )
                 values = []
             except ValueError:
                 logger.warning(
-                    "The value retrieved from the JMESPath expression could not be converted to float."
+                    f"The value retrieved from the JMESPath expression could not be converted to float ({service_quota.service_code} / {service_quota.quota_code})."
                 )
                 values = []
 
