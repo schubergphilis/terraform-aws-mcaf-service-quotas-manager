@@ -61,6 +61,12 @@ class TestCustomCollectionQueries:
             "L-7B6409FD": [{"resourceId": "db-001"}, {"resourceId": "db-002"}],
             "L-272F1212": [{"resourceId": "snap-001"}, {"resourceId": "snap-002"}],
             "L-9B510759": [{"resourceId": "snap-001"}, {"resourceId": "snap-002"}],
+            "L-F141DD1D": [{"resourceId": "cert-001"}, {"resourceId": "cert-002"}],
+            "L-D2CB7DE9": [{"resourceId": "cert-001"}, {"resourceId": "cert-002"}],
+            "L-FB94F0B0": [
+                {"subjectAlternativeNames": ["alt-name-1", "alt-name-2"]},
+                {"subjectAlternativeNames": ["alt-name-1"]},
+            ],
         }
 
     def test_custom_collection_queries(self, expression_results):

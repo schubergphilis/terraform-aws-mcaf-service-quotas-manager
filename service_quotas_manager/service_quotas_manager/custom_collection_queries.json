@@ -1,4 +1,27 @@
 {
+  "acm": {
+    "L-D2CB7DE9": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::ACM::Certificate' AND configuration.type = 'IMPORTED'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-F141DD1D": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::ACM::Certificate' AND (configuration.status = 'ISSUED' OR configuration.status = 'PENDING')",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-FB94F0B0": {
+      "parameters": {
+        "expression": "SELECT configuration.subjectAlternativeNames WHERE resourceType = 'AWS::ACM::Certificate'",
+        "jmespath": "max([].length(subjectAlternativeNames))"
+      },
+      "type": "config"
+    }
+  },
   "apigateway": {
     "L-379E48B0": {
       "parameters": {
