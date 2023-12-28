@@ -1,5 +1,6 @@
 import json
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 import botocore.session
@@ -88,3 +89,20 @@ def cost_explorer_get_cost_and_usage_single_service():
     return json.load(open(Path(FIXTURES_PATH) / "cost_explorer.json"))[
         "get_cost_and_usage"
     ]["single_service"]
+
+
+### PowerTools
+
+
+@pytest.fixture
+def lambda_context():
+    @dataclass
+    class LambdaContext:
+        function_name: str = "ServiceQuotasManager"
+        memory_limit_in_mb: int = 256
+        invoked_function_arn: str = (
+            "arn:aws:lambda:eu-west-1:123456789000:function:ServiceQuotasManager"
+        )
+        aws_request_id: str = "52fdfc07-2182-154f-163f-5f0f9a621d72"
+
+    return LambdaContext()

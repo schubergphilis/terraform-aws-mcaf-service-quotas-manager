@@ -24,14 +24,73 @@ This Service Quotas Manager can be installed as part as an AWS Organization or i
 
 * This service quota manager relies on custom CloudWatch metrics ($0.30/metric/month) and CloudWatch alarms ($0.10/alarm/month). Services to monitor are configurable; more services monitored means increased cost.
 
-* Most quotas are applied per region. This Service Quota Manager also operates in a single region. Install the Service Quota Manager in more regions in order to support more regions.
+* Most quotas are applied per region. This Service Quota Manager operates in a single region. Install the Service Quota Manager in more regions in order to monitor quotas in more regions.
+
+### Remarks on usage collection via AWS Config
+
+AWS Service Quotas by default only works with AWS CloudWatch. A limited set of Service Quotas have a reference to a CloudWatch metric that is collected by default or as soon as one starts using a service. A lot of service quotas however do not have metrics available. There is - for example - no metric for the number of ENI's assigned to a Lambda function, but there is a service quota for it. This tool leverages AWS config - if enabled - to collect that information; because you rather know upfront if you can request a quota increase or should re-architect your solution.
+
+In order to collect usage from AWS Config, this tool uses the 'advanced query' functionality in AWS Config. The queries return a list of serialized JSON objects as a resultset and a JMESPath expression is used to convert that resultset to a re-usable number. Extending the queries - and thus the number of supported service quotas - is relatively easy and can be done by extending the custom collection queries file.
+
+As an example, in [custom_collection_queries.json](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/service_quotas_manager/service_quotas_manager/custom_collection_queries.json):
+
+```jsonc annotate
+{
+  // The service code as defined by AWS Service Quotas. The service code can be derived from the quota ARN in the AWS console.
+  "acm": {
+     // The quota code as defined by AWS Service Quotas. The quota code can be derived from the quota ARN in the AWS console.
+    "L-D2CB7DE9": {
+      "parameters": {
+        // The expression to use as advanced query. This is fed to the select_resource_config API call. It's easy to test expressions in the AWS console.
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::ACM::Certificate' AND configuration.type = 'IMPORTED'",
+        // The JMESPath expression to execute on the expression result. JMESPath expressions are also used by the --query flag when using the AWS CLI.
+        "jmespath": "length([])"
+      },
+      // The type of custom collection query, to enable future support for more services.
+      "type": "config"
+    }
+  }
+}
+```
 
 ## Setup
+
+General steps to install:
+
+1. Install the service quotas manager in a central account.
+2. Setup the assumable roles in all target accounts that require monitoring.
+
+### Central Account
+
+> [!TIP]
+> Consider using a services account or audit account to deploy the service quotas manager in.
+
+A minimal setup can be done like this:
+
+```hcl
+module "service_quotas_manager" {
+  source = github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v1.0.0
+
+  quotas_manager_configuration = [
+    {
+      account_id = "123456789000"
+      role_name = "ServiceQuotaManagerRole"
+      alerting_config = {
+        default_threshold_perc = 75
+        notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
+      }
+    }
+  ]
+}
+```
+
+See the [examples](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/tree/main/examples) for more examples on how to configure thresholds and auto-increase rules.
 
 ### Target Accounts
 
 #### Roles
-This manager works by assuming roles in your target accounts from a single central management account to collect applied service quotas and usage metrics. Every account you want to be managed requires a role that can be assumed by the service quota manager. Setting up these roles is not part of this solution but could be part of - for example - your account baseline.
+
+This manager works by assuming roles in your target accounts from a single central management account to collect applied service quotas and usage metrics. Every account you want to be managed requires a role that can be assumed by the service quota manager. Setting up these roles is not part of this solution but could be part of - for example - your account baseline. It's already part of the MCAF [account baseline](https://github.com/schubergphilis/terraform-aws-mcaf-account-baseline).
 
 Each role requires the following trust policy:
 
@@ -54,7 +113,7 @@ Each role requires the following trust policy:
 Each role requires the following policies attached:
 
 1. AWS Managed policy `ServiceQuotasReadOnlyAccess`.
-2. A custom policy with the following permissions:
+2. A custom or inline policy with the following permissions:
 
 ```json
 {
@@ -95,31 +154,8 @@ Each role requires the following policies attached:
 }
 ```
 
-### Central Account
-
 > [!TIP]
-> Consider using a services account or audit account to deploy the service quotas manager in.
-
-A minimal setup can be done like this:
-
-```hcl
-module "service_quotas_manager" {
-  source = github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v1.0.0
-
-  quotas_manager_configuration = [
-    {
-      accountid = "123456789000"
-      role_name = "ServiceQuotaManagerRole"
-      alerting_config = {
-        default_threshold_perc = 75
-        notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
-      }
-    }
-  ]
-}
-```
-
-See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/tests/service-quotas-manager.tftest.hcl) for more examples on how to configure thresholds and auto-increase rules.
+> We do not pin modules to versions in our examples. We highly recommend that in your code you pin the version to the exact version you are using so that your infrastructure remains stable.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -167,16 +203,18 @@ See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-m
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>list(object({<br>    accountid         = number<br>    role_name         = string<br>    selected_services = optional(list(string), [])<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = optional(number, null)<br>              ignore         = optional(bool, false)<br>            })<br>          )<br>        ), {}<br>      )<br>      }), {<br>      default_threshold_perc = 75<br>      notification_topic_arn = ""<br>      rules                  = {}<br>    })<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))), {})<br>  }))</pre> | n/a | yes |
+| <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket and scheduler | `string` | n/a | yes |
+| <a name="input_quotas_manager_configuration"></a> [quotas\_manager\_configuration](#input\_quotas\_manager\_configuration) | The configuration for the service quota manager | <pre>list(object({<br>    account_id        = string<br>    role_name         = optional(string, "ServiceQuotaManager")<br>    selected_services = optional(list(string), [])<br>    alerting_config = optional(object({<br>      default_threshold_perc = number<br>      notification_topic_arn = optional(string, "")<br>      rules = optional(<br>        map(<br>          map(<br>            object({<br>              threshold_perc = optional(number, null)<br>              ignore         = optional(bool, false)<br>            })<br>          )<br>        ), {}<br>      )<br>      }), {<br>      default_threshold_perc = 75<br>      notification_topic_arn = ""<br>      rules                  = {}<br>    })<br>    quota_increase_config = optional(map(map(object({<br>      step              = optional(number)<br>      factor            = optional(number)<br>      motivation        = string<br>      cc_mail_addresses = list(string)<br>    }))), {})<br>  }))</pre> | n/a | yes |
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | The optional name for the service quota manager configuration bucket, overrides bucket\_prefix | `string` | `null` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | The optional prefix for the service quota manager configuration bucket | `string` | `""` | no |
-| <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN of the KMS key to use with the configuration S3 bucket and scheduler | `string` | `null` | no |
 | <a name="input_schedule_timezone"></a> [schedule\_timezone](#input\_schedule\_timezone) | The timezone to schedule service quota metric collection in | `string` | `"Europe/Amsterdam"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to assign to resources created by this module | `map(string)` | `{}` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_lambda_service_quotas_manager_role_arn"></a> [lambda\_service\_quotas\_manager\_role\_arn](#output\_lambda\_service\_quotas\_manager\_role\_arn) | ARN of the service quotas manager lambda execution role |
 <!-- END_TF_DOCS -->
 
 ## Licensing

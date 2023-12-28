@@ -160,7 +160,7 @@ class TestServiceQuotasCollector:
                         ],
                         "MetricName": "ServiceQuotaUsage",
                         "Timestamp": ANY,
-                        "Value": 120.0,
+                        "Value": 2.0,
                     },
                 ],
                 "Namespace": "ServiceQuotaManager",
@@ -172,12 +172,11 @@ class TestServiceQuotasCollector:
         stubbed_aws_config.add_response(
             "select_resource_config",
             {
-                "Results": ['{"COUNT(*)":120}'],
-                "QueryInfo": {"SelectFields": [{"Name": "COUNT(*)"}]},
+                "Results": ['{"resourceId":"eni-a"}', '{"resourceId":"eni-b"}'],
+                "QueryInfo": {"SelectFields": [{"Name": "resourceId"}]},
             },
             {
-                "Expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'",
-                "Limit": 1,
+                "Expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'"
             },
         )
         stubbed_aws_config.activate()
@@ -264,7 +263,7 @@ class TestServiceQuotasCollector:
                         ],
                         "MetricName": "ServiceQuotaUsage",
                         "Timestamp": ANY,
-                        "Value": 120.0,
+                        "Value": 2.0,
                     },
                 ],
                 "Namespace": "ServiceQuotaManager",
@@ -276,12 +275,11 @@ class TestServiceQuotasCollector:
         stubbed_aws_config.add_response(
             "select_resource_config",
             {
-                "Results": ['{"COUNT(*)":120}'],
-                "QueryInfo": {"SelectFields": [{"Name": "COUNT(*)"}]},
+                "Results": ['{"resourceId":"eni-a"}', '{"resourceId":"eni-b"}'],
+                "QueryInfo": {"SelectFields": [{"Name": "resourceId"}]},
             },
             {
-                "Expression": "SELECT COUNT(*) WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'",
-                "Limit": 1,
+                "Expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::NetworkInterface' and configuration.interfaceType = 'lambda'"
             },
         )
         stubbed_aws_config.activate()

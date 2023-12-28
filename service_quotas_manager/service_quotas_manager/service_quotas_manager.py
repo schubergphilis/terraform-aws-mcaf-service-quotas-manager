@@ -2,12 +2,15 @@ import json
 from typing import Dict, Optional
 
 import boto3
+from aws_lambda_powertools.utilities.typing import LambdaContext
 from botocore.exceptions import ClientError
 
 from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
 from service_quotas_manager.service_quotas_collector import ServiceQuotasCollector
 from service_quotas_manager.service_quotas_increaser import ServiceQuotasIncreaser
-from service_quotas_manager.util import convert_dict, logger
+from service_quotas_manager.util import convert_dict, get_logger
+
+logger = get_logger()
 
 
 def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> Dict:
@@ -15,10 +18,7 @@ def _load_config_from_s3(s3_client, bucket: str, key: str, account_id: str) -> D
     s3_obj = s3_client.get_object(Bucket=bucket, Key=key)
     config = json.loads(s3_obj["Body"].read().decode("utf-8"))
 
-    configuration_by_account = {
-        conf["accountid"]: conf
-        for conf in config
-    }
+    configuration_by_account = {conf["account_id"]: conf for conf in config}
 
     return configuration_by_account.get(account_id, {})
 
@@ -118,7 +118,8 @@ def _get_local_client(client_name: str):
     return boto3.client(client_name)
 
 
-def handler(event, _context):
+@logger.inject_lambda_context
+def handler(event: Dict, _context: LambdaContext):
     """
     Lambda Entrypoint
 
@@ -137,17 +138,17 @@ def handler(event, _context):
         logger.error("No account ID could be found in event. Exiting...")
         return
 
+    logger.append_keys(account_id=account_id)
+
     if "action" not in event:
-        logger.error(
-            f"No action specified in event for account {account_id}. Exiting..."
-        )
+        logger.error("No action specified in event. Exiting...")
         return
 
     config = _load_config_from_s3(
         _get_local_client("s3"), event["config_bucket"], event["config_key"], account_id
     )
     if not config:
-        logger.error(f"No configuration found for account {account_id}. Exiting...")
+        logger.error("No configuration found for account. Exiting...")
         return
 
     assume_role_arn = f"arn:aws:iam::{account_id}:role/{config['role_name']}"
@@ -176,15 +177,13 @@ def handler(event, _context):
         )
 
         sqi = ServiceQuotasIncreaser(
-            _get_remote_client("support", remote_creds),
-            remote_service_quota_client,
-            account_id,
+            _get_remote_client("support", remote_creds), remote_service_quota_client
         )
         sqi.request_service_quota_increase(
             _get_increase_rule_from_config(config, service_quota)
         )
     else:
         logger.error(
-            f"Action {event['action']} not recognized as valid action for account {account_id}. Exiting..."
+            f"Action {event['action']} not recognized as valid action. Exiting..."
         )
         return

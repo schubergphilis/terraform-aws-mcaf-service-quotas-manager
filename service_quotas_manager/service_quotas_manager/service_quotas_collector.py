@@ -2,23 +2,29 @@ import json
 import time
 from datetime import datetime, timedelta
 from difflib import SequenceMatcher as SM
-from typing import Dict, List, Optional
+from typing import Dict, Final, List, Optional
 from unittest import TestCase
 
+import jmespath
 from botocore.exceptions import ClientError
+from jmespath.exceptions import ParseError
 
 from service_quotas_manager.entities import ServiceQuota
-from service_quotas_manager.util import convert_dict, logger
+from service_quotas_manager.util import convert_dict, get_logger
 
-"""Do not try to match service quotas with these Cost Explorer items. They are too generic"""
-CE_ITEM_BLACKLIST = ["Tax", "EC2 - Other"]
+CE_ITEM_BLACKLIST: Final[List["str"]] = ["Tax", "EC2 - Other"]
+"""Filter out these too generic Cost Explorer items"""
 
-"""The namespace and metric name under which to store metrics in CloudWatch"""
-LOCAL_METRIC_NAMESPACE = "ServiceQuotaManager"
-LOCAL_METRIC_NAME = "ServiceQuotaUsage"
+LOCAL_METRIC_NAMESPACE: Final[str] = "ServiceQuotaManager"
+"""The namespace under which to store metrics in CloudWatch"""
 
-"""The % threshold to filter metrics on. Usage below this threshold is ignored."""
-METRIC_FILTER_THRESHOLD_PERC = 10
+LOCAL_METRIC_NAME: Final[str] = "ServiceQuotaUsage"
+"""The metric name under which to store metrics in CloudWatch"""
+
+METRIC_FILTER_THRESHOLD_PERC: Final[int] = 10
+"""Quota usage below this % of applied quota is ignored."""
+
+logger = get_logger()
 
 
 class ServiceQuotasCollector:
@@ -147,7 +153,7 @@ class ServiceQuotasCollector:
             alarms_to_delete[i : i + 100] for i in range(0, len(alarms_to_delete), 100)
         ]
         for alarm_removal_group in alarm_removal_groups:
-            logger.info(f"[{self.account_id}] Deleting alarms {alarm_removal_group}")
+            logger.info(f"Deleting alarms {alarm_removal_group}")
             self.local_cloudwatch_client.delete_alarms(AlarmNames=alarm_removal_group)
 
     def _upsert_alarms(self, alerting_config: Dict, alarms_by_service_quota: Dict):
@@ -222,9 +228,7 @@ class ServiceQuotasCollector:
                 alarm_changed = True
 
             if service_quota_key not in alarms_by_service_quota or alarm_changed:
-                logger.info(
-                    f"[{self.account_id}] Upserting alarm {desired_alarm_definition['AlarmName']}"
-                )
+                logger.info(f"Upserting alarm {desired_alarm_definition['AlarmName']}")
                 self.local_cloudwatch_client.put_metric_alarm(
                     **desired_alarm_definition
                 )
@@ -243,8 +247,8 @@ class ServiceQuotasCollector:
         """
 
         if not service_quota.metric_values:
-            logger.info(
-                f"[{self.account_id}] Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing/filtered metrics."
+            logger.debug(
+                f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to missing/filtered metrics."
             )
             return False
 
@@ -255,7 +259,7 @@ class ServiceQuotasCollector:
             .get("ignore", False)
         ):
             logger.info(
-                f"[{self.account_id}] Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to explicit ignore."
+                f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to explicit ignore."
             )
             return False
 
@@ -282,7 +286,7 @@ class ServiceQuotasCollector:
             )
         except ClientError as ex:
             logger.error(
-                f"[{self.account_id}] No services to monitor specified and unable to determine based on billing. Error: {ex.response['Error']['Code']}. Exiting..."
+                f"No services to monitor specified and unable to determine based on billing. Error: {ex.response['Error']['Code']}. Exiting..."
             )
             return
 
@@ -326,7 +330,7 @@ class ServiceQuotasCollector:
                         if diff_ratio > 0.75:
                             filtered_services.append(service)
                             logger.info(
-                                f"[{self.account_id}] Selected service {service['ServiceName']} based on cost and usage reports ({detected_service})."
+                                f"Selected service {service['ServiceName']} based on cost and usage reports ({detected_service})."
                             )
                             auto_detected_services.remove(detected_service)
                             break
@@ -341,7 +345,7 @@ class ServiceQuotasCollector:
             ]
             if unmatched_services:
                 logger.warning(
-                    f"[{self.account_id}] The following services do not seem to exist: {', '.join(unmatched_services)}. Maybe you used the service code instead of the service name?"
+                    f"The following services do not seem to exist: {', '.join(unmatched_services)}. Maybe you used the service code instead of the service name?"
                 )
 
         return filtered_services
@@ -386,7 +390,7 @@ class ServiceQuotasCollector:
             for service_quota in service_quota_page["Quotas"]:
                 if "ErrorReason" in service_quota:
                     logger.warning(
-                        f"[{self.account_id}] Can not manage quota {service_quota['ServiceName']} / {service_quota['QuotaName']}. Reason code: {service_quota['ErrorReason']['ErrorCode']}. Reason message: {service_quota['ErrorReason']['ErrorMessage']}"
+                        f"Can not manage quota {service_quota['ServiceName']} / {service_quota['QuotaName']}. Reason code: {service_quota['ErrorReason']['ErrorCode']}. Reason message: {service_quota['ErrorReason']['ErrorMessage']}"
                     )
                     continue
 
@@ -407,38 +411,54 @@ class ServiceQuotasCollector:
         self, service_quota_group: List[ServiceQuota]
     ) -> None:
         """
-        Collect the usage for various service quotas from the targeted account by using AWS Config.
+        Collect the usage for various service quotas from the targeted account by using
+        AWS Config. A JMESPath expression is then applied to the collected query result
+        to retrieve the value looked for.
+
+        See https://jmespath.org/ for how to use.
         """
 
         for service_quota in service_quota_group:
-            collection_params = service_quota.collection_query["parameters"]
-            expression_result = self.remote_config_client.select_resource_config(
-                Expression=collection_params["expression"], Limit=1
+            c_params = service_quota.collection_query["parameters"]
+            expression_result_paginator = self.remote_config_client.get_paginator(
+                "select_resource_config"
+            )
+            expression_result_pages = expression_result_paginator.paginate(
+                Expression=c_params["expression"]
             )
 
-            if len(expression_result.get("Results", [])) == 0:
+            expression_result = []
+            for expression_result_page in expression_result_pages:
+                expression_result += [
+                    json.loads(row) for row in expression_result_page.get("Results", [])
+                ]
+
+            if len(expression_result) == 0:
                 logger.info(
-                    f"[{self.account_id}] The AWS config query ({collection_params['expression']}) yielded no results."
+                    f"The AWS config query ({c_params['expression']}) yielded no results "
+                    f"({service_quota.service_code} / {service_quota.quota_code})"
                 )
-                service_quota.metric_values = []
                 continue
 
-            columns = [
-                field["Name"]
-                for field in expression_result["QueryInfo"]["SelectFields"]
-            ]
-            selected_column = columns[collection_params["columnIndex"]]
-
-            values = [
-                round(
-                    float(json.loads(expression_result["Results"][0])[selected_column]),
-                    1,
+            try:
+                collected_values = jmespath.search(
+                    c_params["jmespath"], expression_result
                 )
-            ]
-            logger.info(
-                f"[{self.account_id}] Collected metric values from AWS Config for quota {service_quota.service_name} / {service_quota.service_name}: {values}"
-            )
-            service_quota.metric_values = values
+                service_quota.metric_values = [round(float(collected_values), 1)]
+                logger.debug(
+                    f"Collected metric values from AWS Config for quota "
+                    f"{service_quota.service_name} / {service_quota.quota_name}: {collected_values}"
+                )
+            except ParseError as p_ex:
+                logger.warning(
+                    f"A JMESPath parse error occurred ({service_quota.service_code} / "
+                    f"{service_quota.quota_code}): {p_ex.msg}."
+                )
+            except ValueError:
+                logger.warning(
+                    f"The value retrieved from the JMESPath expression could not be converted "
+                    f"to float ({service_quota.service_code} / {service_quota.quota_code})."
+                )
 
     def _collect_cloudwatch_remote_metrics(
         self, service_quota_group: List[ServiceQuota]
@@ -496,8 +516,8 @@ class ServiceQuotasCollector:
 
         for service_quota in service_quota_group:
             values = metric_data_by_id[service_quota.internal_id]
-            logger.info(
-                f"[{self.account_id}] Collected metric values from CloudWatch for quota {service_quota.service_name} / {service_quota.quota_name}: {values}"
+            logger.debug(
+                f"Collected metric values from CloudWatch for quota {service_quota.service_name} / {service_quota.quota_name}: {values}"
             )
             service_quota.metric_values = values
 
@@ -516,7 +536,7 @@ class ServiceQuotasCollector:
                 < (service_quota.value * METRIC_FILTER_THRESHOLD_PERC) / 100
             ):
                 logger.info(
-                    f"[{self.account_id}] Filtering out service quota {service_quota.service_name} / {service_quota.quota_name} because of low usage ({service_quota.metric_values[0]} < {METRIC_FILTER_THRESHOLD_PERC}% of {service_quota.value})"
+                    f"Filtering out service quota {service_quota.service_name} / {service_quota.quota_name} because of low usage ({service_quota.metric_values[0]} < {METRIC_FILTER_THRESHOLD_PERC}% of {service_quota.value})"
                 )
                 service_quota.metric_values = []
 
@@ -549,5 +569,5 @@ class ServiceQuotasCollector:
         for service_quota in service_quota_group:
             if service_quota.metric_values:
                 logger.info(
-                    f"[{self.account_id}] Stored metric values for quota {service_quota.service_name} / {service_quota.quota_name}: {service_quota.metric_values[0]}"
+                    f"Stored metric values for quota {service_quota.service_name} / {service_quota.quota_name}: {service_quota.metric_values[0]}"
                 )

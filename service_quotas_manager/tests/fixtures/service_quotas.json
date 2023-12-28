@@ -54,7 +54,7 @@
           "ServiceCode": "lambda",
           "ServiceName": "AWS Lambda",
           "Unit": "Gigabytes",
-          "Value": 75.0
+          "Value": 6.0
         }
       ]
     }
