@@ -4,6 +4,7 @@ from typing import Dict, Optional
 import boto3
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from botocore.exceptions import ClientError
+
 from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
 from service_quotas_manager.service_quotas_collector import ServiceQuotasCollector
 from service_quotas_manager.service_quotas_increaser import ServiceQuotasIncreaser
