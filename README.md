@@ -33,19 +33,19 @@ AWS Service Quotas by default only works with AWS CloudWatch. A limited set of S
 In order to collect usage from AWS Config, this tool uses the 'advanced query' functionality in AWS Config. The queries return a list of serialized JSON objects as a resultset and a JMESPath expression is used to convert that resultset to a re-usable number. Extending the queries - and thus the number of supported service quotas - is easy.
 
 As an example, in [custom_collection_queries.json](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/service_quotas_manager/service_quotas_manager/custom_collection_queries.json):
-```json annotate
+```jsonc annotate
 {
-  # The service code as defined by AWS Service Quotas. The service code can be derived from the quota ARN in the AWS console.
+  // The service code as defined by AWS Service Quotas. The service code can be derived from the quota ARN in the AWS console.
   "acm": {
-     # The quota code as defined by AWS Service Quotas. The quota code can be derived from the quota ARN in the AWS console.
+     // The quota code as defined by AWS Service Quotas. The quota code can be derived from the quota ARN in the AWS console.
     "L-D2CB7DE9": {
       "parameters": {
-        # The expression to use as advanced query. This is fed to the select_resource_config API call. It's easy to test expressions in the AWS console.
+        // The expression to use as advanced query. This is fed to the select_resource_config API call. It's easy to test expressions in the AWS console.
         "expression": "SELECT resourceId WHERE resourceType = 'AWS::ACM::Certificate' AND configuration.type = 'IMPORTED'",
-        # The JMESPath expression to execute on the expression result. JMESPath expressions are also used by the --query flag when using the AWS CLI.
+        // The JMESPath expression to execute on the expression result. JMESPath expressions are also used by the --query flag when using the AWS CLI.
         "jmespath": "length([])"
       },
-      # The type of custom collection query, to enable future support for more services.
+      // The type of custom collection query, to enable future support for more services.
       "type": "config"
     }
   }
