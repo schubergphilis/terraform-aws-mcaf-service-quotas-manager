@@ -4,6 +4,7 @@ from typing import Dict, Optional
 import boto3
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from botocore.exceptions import ClientError
+
 from service_quotas_manager.entities import ServiceQuota, ServiceQuotaIncreaseRule
 from service_quotas_manager.service_quotas_collector import ServiceQuotasCollector
 from service_quotas_manager.service_quotas_increaser import ServiceQuotasIncreaser
@@ -57,7 +58,7 @@ def _get_account_id_from_alarm(alarm_details: Dict) -> Optional[str]:
 
 
 def _get_increase_rule_from_config(
-        config: Dict, service_quota: ServiceQuota
+    config: Dict, service_quota: ServiceQuota
 ) -> Optional[ServiceQuotaIncreaseRule]:
     """Retrieve an increase rule from config if the Lambda is triggered by an alarm."""
 
@@ -74,7 +75,7 @@ def _get_increase_rule_from_config(
 
 
 def _get_service_quota_from_alarm(
-        alarm_details: Dict, remote_service_quota_client
+    alarm_details: Dict, remote_service_quota_client
 ) -> ServiceQuota:
     """Find a service quota based on payload if the Lambda is triggered by an alarm."""
 
@@ -102,7 +103,7 @@ def _get_service_quota_from_alarm(
 
 
 def _get_remote_client(
-        client_name: str, credentials: Dict, region: Optional[str] = None
+    client_name: str, credentials: Dict, region: Optional[str] = None
 ):
     """Create a boto3 client based on credentials from an assumed role."""
 
