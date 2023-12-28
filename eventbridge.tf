@@ -53,6 +53,7 @@ resource "aws_scheduler_schedule_group" "service_quotas_manager" {
   tags = var.tags
 }
 
+#checkov:skip=CKV_AWS_297:Ensure EventBridge Scheduler Schedule uses Customer Managed Key (CMK)
 resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
   for_each = { for cfg in var.quotas_manager_configuration : cfg.account_id => cfg }
 
