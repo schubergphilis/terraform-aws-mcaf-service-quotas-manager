@@ -3,25 +3,8 @@ provider "aws" {
 }
 
 data "aws_iam_policy_document" "kms_key_policy_service_quotas_manager" {
-  statement {
-    sid       = "Full permissions for account"
-    actions   = ["kms:*"]
-    effect    = "Allow"
-    resources = ["*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:PrincipalType"
-      values   = ["Account"]
-    }
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::123456789000:root"
-      ]
-    }
-  }
+  # The following statements are required for the Service Quotas Manager
+  # Additional statements for managing the key are required as well.
 
   statement {
     sid = "ServiceQuotasManagerAlarms"
