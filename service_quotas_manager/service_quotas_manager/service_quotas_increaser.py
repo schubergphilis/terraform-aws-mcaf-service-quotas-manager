@@ -17,7 +17,7 @@ class ServiceQuotasIncreaser:
         self.remote_service_quota_client = remote_service_quota_client
 
     def request_service_quota_increase(
-            self, increase_rule: ServiceQuotaIncreaseRule
+        self, increase_rule: ServiceQuotaIncreaseRule
     ) -> None:
         """
         File a service quota increase if all pre-conditions are met. Steps are
@@ -57,7 +57,7 @@ class ServiceQuotasIncreaser:
         )
 
     def _update_support_case(
-            self, case_id: str, motivation: str, cc_mail_addresses: List[str]
+        self, case_id: str, motivation: str, cc_mail_addresses: List[str]
     ):
         """
         Update the just created support case by adding the configured motivation
@@ -121,8 +121,8 @@ class ServiceQuotasIncreaser:
             cases_by_status[case["Status"]].append(case)
 
         if (
-                len(cases_by_status.get("PENDING", [])) > 0
-                or len(cases_by_status.get("CASE_OPENED", [])) > 0
+            len(cases_by_status.get("PENDING", [])) > 0
+            or len(cases_by_status.get("CASE_OPENED", [])) > 0
         ):
             logger.info(
                 f"Quota {increase_rule.service_quota.quota_name} for service {increase_rule.service_quota.service_name} still has pending quota increase requests. Exiting..."

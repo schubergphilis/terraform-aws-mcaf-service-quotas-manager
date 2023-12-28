@@ -50,8 +50,10 @@
             "Effect": "Allow",
             "Action": [
                 "kms:Decrypt",
+                "kms:DescribeKey",
                 "kms:Encrypt",
-                "kms:DescribeKey"
+                "kms:GenerateDataKey*",
+                "kms:ReEncrypt*"
             ],
             "Resource": "${kms_key_arn}"
         }
