@@ -33,6 +33,7 @@ AWS Service Quotas by default only works with AWS CloudWatch. A limited set of S
 In order to collect usage from AWS Config, this tool uses the 'advanced query' functionality in AWS Config. The queries return a list of serialized JSON objects as a resultset and a JMESPath expression is used to convert that resultset to a re-usable number. Extending the queries - and thus the number of supported service quotas - is relatively easy and can be done by extending the custom collection queries file.
 
 As an example, in [custom_collection_queries.json](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/service_quotas_manager/service_quotas_manager/custom_collection_queries.json):
+
 ```jsonc annotate
 {
   // The service code as defined by AWS Service Quotas. The service code can be derived from the quota ARN in the AWS console.
@@ -88,6 +89,7 @@ See the [examples](https://github.com/schubergphilis/terraform-aws-mcaf-service-
 ### Target Accounts
 
 #### Roles
+
 This manager works by assuming roles in your target accounts from a single central management account to collect applied service quotas and usage metrics. Every account you want to be managed requires a role that can be assumed by the service quota manager. Setting up these roles is not part of this solution but could be part of - for example - your account baseline. It's already part of the MCAF [account baseline](https://github.com/schubergphilis/terraform-aws-mcaf-account-baseline).
 
 Each role requires the following trust policy:
@@ -151,6 +153,9 @@ Each role requires the following policies attached:
   ]
 }
 ```
+
+> [!TIP]
+> We do not pin modules to versions in our examples. We highly recommend that in your code you pin the version to the exact version you are using so that your infrastructure remains stable.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements

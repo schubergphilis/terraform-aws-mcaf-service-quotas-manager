@@ -148,6 +148,7 @@ module "service_quotas_manager" {
   source = "../.."
 
   kms_key_arn = module.service_quotas_manager_kms_key.arn
+
   quotas_manager_configuration = [{
     account_id = "123456789000"
     selected_services = [
