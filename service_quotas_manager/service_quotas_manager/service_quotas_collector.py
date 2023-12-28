@@ -8,7 +8,6 @@ from unittest import TestCase
 import jmespath
 from botocore.exceptions import ClientError
 from jmespath.exceptions import ParseError
-
 from service_quotas_manager.entities import ServiceQuota
 from service_quotas_manager.util import convert_dict, get_logger
 
@@ -29,13 +28,13 @@ logger = get_logger()
 
 class ServiceQuotasCollector:
     def __init__(
-        self,
-        remote_service_quota_client,
-        remote_cloudwatch_client,
-        remote_config_client,
-        remote_ce_client,
-        local_cloudwatch_client,
-        account_id: str,
+            self,
+            remote_service_quota_client,
+            remote_cloudwatch_client,
+            remote_config_client,
+            remote_ce_client,
+            local_cloudwatch_client,
+            account_id: str,
     ):
         self.remote_service_quota_client = remote_service_quota_client
         self.remote_cloudwatch_client = remote_cloudwatch_client
@@ -71,7 +70,7 @@ class ServiceQuotasCollector:
                 if service_quota.usage_metric:
                     service_quotas_with_metrics.append(service_quota)
                 elif service_quota.quota_code in self._custom_collection_queries.get(
-                    service_quota.service_code, {}
+                        service_quota.service_code, {}
                 ):
                     service_quota.collection_query = self._custom_collection_queries[
                         service_quota.service_code
@@ -79,7 +78,7 @@ class ServiceQuotasCollector:
                     service_quotas_with_metrics.append(service_quota)
 
         service_quota_groups = [
-            service_quotas_with_metrics[i : i + 500]
+            service_quotas_with_metrics[i: i + 500]
             for i in range(0, len(service_quotas_with_metrics), 500)
         ]
         for service_quota_group in service_quota_groups:
@@ -150,7 +149,7 @@ class ServiceQuotasCollector:
             if key not in all_desired_alarm_codes
         ]
         alarm_removal_groups = [
-            alarms_to_delete[i : i + 100] for i in range(0, len(alarms_to_delete), 100)
+            alarms_to_delete[i: i + 100] for i in range(0, len(alarms_to_delete), 100)
         ]
         for alarm_removal_group in alarm_removal_groups:
             logger.info(f"Deleting alarms {alarm_removal_group}")
@@ -235,7 +234,7 @@ class ServiceQuotasCollector:
                 time.sleep(0.35)  # PutMetricAlarm is rate limited at 3TPS.
 
     def __should_alarm(
-        self, alerting_config: Dict, service_quota: ServiceQuota
+            self, alerting_config: Dict, service_quota: ServiceQuota
     ) -> bool:
         """
         Determine if an alarm should be created for a service quota by checking
@@ -253,10 +252,10 @@ class ServiceQuotasCollector:
             return False
 
         if (
-            alerting_config.get("rules", {})
-            .get(service_quota.service_name, {})
-            .get(service_quota.quota_name, {})
-            .get("ignore", False)
+                alerting_config.get("rules", {})
+                        .get(service_quota.service_name, {})
+                        .get(service_quota.quota_name, {})
+                        .get("ignore", False)
         ):
             logger.info(
                 f"Skipping alarm for {service_quota.service_name} / {service_quota.quota_name} due to explicit ignore."
@@ -408,7 +407,7 @@ class ServiceQuotasCollector:
         return service_quotas
 
     def _collect_config_remote_metrics(
-        self, service_quota_group: List[ServiceQuota]
+            self, service_quota_group: List[ServiceQuota]
     ) -> None:
         """
         Collect the usage for various service quotas from the targeted account by using
@@ -461,7 +460,7 @@ class ServiceQuotasCollector:
                 )
 
     def _collect_cloudwatch_remote_metrics(
-        self, service_quota_group: List[ServiceQuota]
+            self, service_quota_group: List[ServiceQuota]
     ) -> None:
         """
         Collect the usage for various service quotas from the targeted account by using CloudWatch Metrics.
@@ -488,7 +487,7 @@ class ServiceQuotasCollector:
                         "Period": (
                             service_quota.period["PeriodValue"]
                             if service_quota.period
-                            and service_quota.period["PeriodUnit"] == "SECOND"
+                               and service_quota.period["PeriodUnit"] == "SECOND"
                             else 300
                         ),
                         "Stat": service_quota.usage_metric[
@@ -499,12 +498,12 @@ class ServiceQuotasCollector:
                 for service_quota in service_quota_group
             ],
             StartTime=(
-                current_time
-                - timedelta(minutes=60)
-                - (current_time - datetime.min) % timedelta(minutes=60)
+                    current_time
+                    - timedelta(minutes=60)
+                    - (current_time - datetime.min) % timedelta(minutes=60)
             ),
             EndTime=(
-                current_time - (current_time - datetime.min) % timedelta(minutes=60)
+                    current_time - (current_time - datetime.min) % timedelta(minutes=60)
             ),
             ScanBy="TimestampDescending",
         )
@@ -530,10 +529,10 @@ class ServiceQuotasCollector:
         """
         for service_quota in service_quota_group:
             if (
-                service_quota.value
-                and service_quota.metric_values
-                and service_quota.metric_values[0]
-                < (service_quota.value * METRIC_FILTER_THRESHOLD_PERC) / 100
+                    service_quota.value
+                    and service_quota.metric_values
+                    and service_quota.metric_values[0]
+                    < (service_quota.value * METRIC_FILTER_THRESHOLD_PERC) / 100
             ):
                 logger.info(
                     f"Filtering out service quota {service_quota.service_name} / {service_quota.quota_name} because of low usage ({service_quota.metric_values[0]} < {METRIC_FILTER_THRESHOLD_PERC}% of {service_quota.value})"
