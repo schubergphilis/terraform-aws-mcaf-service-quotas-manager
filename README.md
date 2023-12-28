@@ -207,7 +207,9 @@ Each role requires the following policies attached:
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_lambda_service_quotas_manager_role_arn"></a> [lambda\_service\_quotas\_manager\_role\_arn](#output\_lambda\_service\_quotas\_manager\_role\_arn) | ARN of the service quotas manager lambda execution role |
 <!-- END_TF_DOCS -->
 
 ## Licensing
