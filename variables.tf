@@ -13,7 +13,6 @@ variable "bucket_name" {
 variable "kms_key_arn" {
   description = "The ARN of the KMS key to use with the configuration S3 bucket and scheduler"
   type        = string
-  default     = null
 }
 
 variable "quotas_manager_configuration" {

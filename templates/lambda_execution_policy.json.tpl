@@ -38,6 +38,22 @@
                 "s3:GetObject"
             ],
             "Resource": "${service_quotas_manager_bucket_arn}/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "kms:ListAliases"
+            ],
+            "Resource": "arn:aws:logs:${region_name}:${account_id}:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "kms:Decrypt",
+                "kms:Encrypt",
+                "kms:DescribeKey"
+            ],
+            "Resource": "${kms_key_arn}"
         }
     ]
 }
