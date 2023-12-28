@@ -44,7 +44,7 @@
             "Action": [
                 "kms:ListAliases"
             ],
-            "Resource": "arn:aws:logs:${region_name}:${account_id}:*"
+            "Resource": "arn:aws:kms:${region_name}:${account_id}:*"
         },
         {
             "Effect": "Allow",
