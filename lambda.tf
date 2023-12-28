@@ -15,6 +15,7 @@ module "service_quotas_manager_lambda" {
   create_policy = false
   description   = "Service Quotas Manager Lambda Function"
   handler       = "service_quotas_manager.service_quotas_manager.handler"
+  kms_key_arn   = var.kms_key_arn
   log_retention = 90
   memory_size   = 256
   retries       = 0
@@ -27,6 +28,8 @@ module "service_quotas_manager_lambda" {
     POWERTOOLS_SERVICE_NAME = "ServiceQuotasManager"
   }
 
+  # Use a AWS provided layer to include Powertools to simplify the redistribution process.
+  # Also see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer.
   layers = [
     "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:58"
   ]

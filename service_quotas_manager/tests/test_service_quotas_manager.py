@@ -180,7 +180,7 @@ class TestServiceQuotasIncreaser:
 
     def test_handler_exits_if_no_action_provided(self, caplog, lambda_context):
         sqm_handler({"account_id": "123456789001"}, lambda_context)
-        assert "No action specified in event for account 123456789001. Exiting..." in [
+        assert "No action specified in event. Exiting..." in [
             r.message for r in caplog.records
         ]
 
@@ -238,10 +238,9 @@ class TestServiceQuotasIncreaser:
             lambda_context,
         )
 
-        assert (
-            "Action FooBar not recognized as valid action for account 123456789000. Exiting..."
-            in [r.message for r in caplog.records]
-        )
+        assert "Action FooBar not recognized as valid action. Exiting..." in [
+            r.message for r in caplog.records
+        ]
 
     @patch("service_quotas_manager.service_quotas_manager._get_local_client")
     def test_handler_exits_if_no_config_for_account_could_be_found(
@@ -270,6 +269,6 @@ class TestServiceQuotasIncreaser:
             },
             lambda_context,
         )
-        assert "No configuration found for account 123456789001. Exiting..." in [
+        assert "No configuration found for account. Exiting..." in [
             r.message for r in caplog.records
         ]

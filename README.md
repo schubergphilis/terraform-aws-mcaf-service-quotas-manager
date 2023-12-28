@@ -24,9 +24,66 @@ This Service Quotas Manager can be installed as part as an AWS Organization or i
 
 * This service quota manager relies on custom CloudWatch metrics ($0.30/metric/month) and CloudWatch alarms ($0.10/alarm/month). Services to monitor are configurable; more services monitored means increased cost.
 
-* Most quotas are applied per region. This Service Quota Manager also operates in a single region. Install the Service Quota Manager in more regions in order to support more regions.
+* Most quotas are applied per region. This Service Quota Manager operates in a single region. Install the Service Quota Manager in more regions in order to monitor quotas in more regions.
+
+### Remarks on usage collection via AWS Config
+
+AWS Service Quotas by default only works with AWS CloudWatch. A limited set of Service Quotas have a reference to a CloudWatch metric that is collected by default or as soon as one starts using a service. A lot of service quotas however do not have metrics available. There is - for example - no metric for the number of ENI's assigned to a Lambda function, but there is a service quota for it. This tool leverages AWS config - if enabled - to collect that information; because you rather know upfront if you can request a quota increase or should re-architect your solution.
+
+In order to collect usage from AWS Config, this tool uses the 'advanced query' functionality in AWS Config. The queries return a list of serialized JSON objects as a resultset and a JMESPath expression is used to convert that resultset to a re-usable number. Extending the queries - and thus the number of supported service quotas - is easy.
+
+As an example, in [custom_collection_queries.json](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/service_quotas_manager/service_quotas_manager/custom_collection_queries.json):
+```json annotate
+{
+  # The service code as defined by AWS Service Quotas. The service code can be derived from the quota ARN in the AWS console.
+  "acm": {
+     # The quota code as defined by AWS Service Quotas. The quota code can be derived from the quota ARN in the AWS console.
+    "L-D2CB7DE9": {
+      "parameters": {
+        # The expression to use as advanced query. This is fed to the select_resource_config API call. It's easy to test expressions in the AWS console.
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::ACM::Certificate' AND configuration.type = 'IMPORTED'",
+        # The JMESPath expression to execute on the expression result. JMESPath expressions are also used by the --query flag when using the AWS CLI.
+        "jmespath": "length([])"
+      },
+      # The type of custom collection query, to enable future support for more services.
+      "type": "config"
+    }
+  }
+}
+```
 
 ## Setup
+
+General steps to install:
+
+1. Install the service quotas manager in a central account.
+2. Setup the assumable roles in all target accounts that require monitoring.
+
+### Central Account
+
+> [!TIP]
+> Consider using a services account or audit account to deploy the service quotas manager in.
+
+A minimal setup can be done like this:
+
+```hcl
+module "service_quotas_manager" {
+  source = github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v1.0.0
+
+  quotas_manager_configuration = [
+    {
+      account_id = "123456789000"
+      role_name = "ServiceQuotaManagerRole"
+      alerting_config = {
+        default_threshold_perc = 75
+        notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
+      }
+    }
+  ]
+}
+```
+
+See the [examples](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/tree/main/examples) for more examples on how to configure thresholds and auto-increase rules.
 
 ### Target Accounts
 
@@ -54,7 +111,7 @@ Each role requires the following trust policy:
 Each role requires the following policies attached:
 
 1. AWS Managed policy `ServiceQuotasReadOnlyAccess`.
-2. A custom policy with the following permissions:
+2. A custom or inline policy with the following permissions:
 
 ```json
 {
@@ -94,32 +151,6 @@ Each role requires the following policies attached:
   ]
 }
 ```
-
-### Central Account
-
-> [!TIP]
-> Consider using a services account or audit account to deploy the service quotas manager in.
-
-A minimal setup can be done like this:
-
-```hcl
-module "service_quotas_manager" {
-  source = github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager?ref=v1.0.0
-
-  quotas_manager_configuration = [
-    {
-      account_id = "123456789000"
-      role_name = "ServiceQuotaManagerRole"
-      alerting_config = {
-        default_threshold_perc = 75
-        notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
-      }
-    }
-  ]
-}
-```
-
-See the [infrastructure tests](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/tests/service-quotas-manager.tftest.hcl) for more examples on how to configure thresholds and auto-increase rules.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
