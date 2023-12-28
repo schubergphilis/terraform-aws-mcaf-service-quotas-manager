@@ -9,6 +9,12 @@ data "aws_iam_policy_document" "kms_key_policy_service_quotas_manager" {
     effect    = "Allow"
     resources = ["*"]
 
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalType"
+      values   = ["Account"]
+    }
+
     principals {
       type = "AWS"
       identifiers = [
