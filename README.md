@@ -30,7 +30,7 @@ This Service Quotas Manager can be installed as part as an AWS Organization or i
 
 AWS Service Quotas by default only works with AWS CloudWatch. A limited set of Service Quotas have a reference to a CloudWatch metric that is collected by default or as soon as one starts using a service. A lot of service quotas however do not have metrics available. There is - for example - no metric for the number of ENI's assigned to a Lambda function, but there is a service quota for it. This tool leverages AWS config - if enabled - to collect that information; because you rather know upfront if you can request a quota increase or should re-architect your solution.
 
-In order to collect usage from AWS Config, this tool uses the 'advanced query' functionality in AWS Config. The queries return a list of serialized JSON objects as a resultset and a JMESPath expression is used to convert that resultset to a re-usable number. Extending the queries - and thus the number of supported service quotas - is easy.
+In order to collect usage from AWS Config, this tool uses the 'advanced query' functionality in AWS Config. The queries return a list of serialized JSON objects as a resultset and a JMESPath expression is used to convert that resultset to a re-usable number. Extending the queries - and thus the number of supported service quotas - is relatively easy and can be done by extending the custom collection queries file.
 
 As an example, in [custom_collection_queries.json](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/service_quotas_manager/service_quotas_manager/custom_collection_queries.json):
 ```jsonc annotate
