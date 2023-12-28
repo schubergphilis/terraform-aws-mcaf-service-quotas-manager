@@ -19,7 +19,7 @@ variable "quotas_manager_configuration" {
   description = "The configuration for the service quota manager"
   type = list(object({
     account_id        = string
-    role_name         = string
+    role_name         = optional(string, "ServiceQuotaManager")
     selected_services = optional(list(string), [])
     alerting_config = optional(object({
       default_threshold_perc = number

@@ -150,7 +150,6 @@ module "service_quotas_manager" {
   kms_key_arn = module.service_quotas_manager_kms_key.arn
   quotas_manager_configuration = [{
     account_id = 123456789000
-    role_name  = "ServiceQuotaManagerRole"
     alerting_config = {
       default_threshold_perc = 75
       notification_topic_arn = aws_sns_topic.service_quotas_manager.arn
