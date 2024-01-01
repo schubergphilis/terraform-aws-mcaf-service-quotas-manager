@@ -1,0 +1,406 @@
+{
+  "acm": {
+    "L-D2CB7DE9": [
+      {
+        "resourceId": "cert-001"
+      },
+      {
+        "resourceId": "cert-002"
+      }
+    ],
+    "L-F141DD1D": [
+      {
+        "resourceId": "cert-001"
+      },
+      {
+        "resourceId": "cert-002"
+      }
+    ],
+    "L-FB94F0B0": [
+      {
+        "subjectAlternativeNames": [
+          "alt-name-1",
+          "alt-name-2"
+        ]
+      },
+      {
+        "subjectAlternativeNames": [
+          "alt-name-1"
+        ]
+      }
+    ]
+  },
+  "apigateway": {
+    "L-379E48B0": [
+      {
+        "relationships": [
+          {
+            "resourceType": "AWS::ApiGateway::Stage"
+          }
+        ]
+      },
+      {
+        "relationships": [
+          {
+            "resourceType": "AWS::ApiGateway::Stage"
+          },
+          {
+            "resourceType": "AWS::ApiGateway::Stage"
+          }
+        ]
+      }
+    ],
+    "L-A966AB5C": [
+      {
+        "configuration": {
+          "endpointConfiguration": {
+            "types": [
+              "PRIVATE"
+            ]
+          }
+        }
+      },
+      {
+        "configuration": {
+          "endpointConfiguration": {
+            "types": [
+              "PRIVATE"
+            ]
+          }
+        }
+      }
+    ],
+    "L-AA0FF27B": [
+      {
+        "configuration": {
+          "endpointConfiguration": {
+            "types": [
+              "REGIONAL"
+            ]
+          }
+        }
+      },
+      {
+        "configuration": {
+          "endpointConfiguration": {
+            "types": [
+              "REGIONAL"
+            ]
+          }
+        }
+      }
+    ],
+    "L-B97207D0": [
+      {
+        "configuration": {
+          "endpointConfiguration": {
+            "types": [
+              "EDGE"
+            ]
+          }
+        }
+      },
+      {
+        "configuration": {
+          "endpointConfiguration": {
+            "types": [
+              "EDGE"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "dynamodb": {
+    "L-F7858A77": [
+      {
+        "configuration": {
+          "globalSecondaryIndexes": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      {
+        "configuration": {
+          "globalSecondaryIndexes": [
+            "a"
+          ]
+        }
+      }
+    ],
+    "L-F98FE922": [
+      {
+        "resourceId": "tbl-001"
+      },
+      {
+        "resourceId": "tbl-002"
+      }
+    ]
+  },
+  "ec2": {
+    "L-0263D0A3": [
+      {
+        "resourceId": "eip-001"
+      },
+      {
+        "resourceId": "eip-002"
+      }
+    ],
+    "L-FB451C26": [
+      {
+        "resourceId": "lt-001"
+      },
+      {
+        "resourceId": "lt-002"
+      }
+    ]
+  },
+  "lambda": {
+    "L-01237738": [
+      {
+        "configuration": {
+          "layers": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      {
+        "configuration": {
+          "layers": [
+            "a"
+          ]
+        }
+      }
+    ],
+    "L-9FEE3D26": [
+      {
+        "resourceId": "eni-001"
+      },
+      {
+        "resourceId": "eni-002"
+      }
+    ]
+  },
+  "rds": {
+    "L-272F1212": [
+      {
+        "resourceId": "snap-001"
+      },
+      {
+        "resourceId": "snap-002"
+      }
+    ],
+    "L-7B6409FD": [
+      {
+        "resourceId": "db-001"
+      },
+      {
+        "resourceId": "db-002"
+      }
+    ],
+    "L-9B510759": [
+      {
+        "resourceId": "snap-001"
+      },
+      {
+        "resourceId": "snap-002"
+      }
+    ]
+  },
+  "s3": {
+    "L-DC2B2D3D": [
+      {
+        "resourceId": "bucket-001"
+      },
+      {
+        "resourceId": "bucket-002"
+      }
+    ]
+  },
+  "vpc": {
+    "L-1B52E74A": [
+      {
+        "resourceId": "ep-001"
+      },
+      {
+        "resourceId": "ep-002"
+      }
+    ],
+    "L-29B6F2EB": [
+      {
+        "COUNT(*)": 1,
+        "vpcId": "vpc-001"
+      },
+      {
+        "COUNT(*)": 2,
+        "vpcId": "vpc-002"
+      }
+    ],
+    "L-2AFB9258": [
+      {
+        "relationships": [
+          {
+            "resourceType": "AWS::EC2::SecurityGroup"
+          },
+          {
+            "resourceType": "AWS::EC2::SecurityGroup"
+          },
+          {
+            "resourceType": "AWS::EC2::Subnet"
+          }
+        ]
+      },
+      {
+        "relationships": [
+          {
+            "resourceType": "AWS::EC2::VPC"
+          },
+          {
+            "resourceType": "AWS::EC2::Subnet"
+          }
+        ]
+      }
+    ],
+    "L-407747CB": [
+      {
+        "COUNT(*)": 1,
+        "vpcId": "vpc-001"
+      },
+      {
+        "COUNT(*)": 2,
+        "vpcId": "vpc-002"
+      }
+    ],
+    "L-45FE3B85": [
+      {
+        "resourceId": "gw-001"
+      },
+      {
+        "resourceId": "gw-002"
+      }
+    ],
+    "L-589F43AA": [
+      {
+        "COUNT(*)": 1,
+        "vpcId": "vpc-001"
+      },
+      {
+        "COUNT(*)": 2,
+        "vpcId": "vpc-002"
+      }
+    ],
+    "L-5F53652F": [
+      {
+        "configuration": {
+          "natGatewayAddresses": [
+            {
+              "associationId": "eipassoc-001"
+            },
+            {
+              "associationId": "eipassoc-002"
+            }
+          ]
+        }
+      },
+      {
+        "configuration": {
+          "natGatewayAddresses": [
+            {
+              "associationId": "eipassoc-001"
+            }
+          ]
+        }
+      }
+    ],
+    "L-83CA0A9D": [
+      {
+        "configuration": {
+          "cidrBlockAssociationSet": [
+            {
+              "cidrBlockState": {
+                "state": "associated"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "configuration": {
+          "cidrBlockAssociationSet": [
+            {
+              "cidrBlockState": {
+                "state": "associated"
+              }
+            },
+            {
+              "cidrBlockState": {
+                "state": "associated"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "L-93826ACB": [
+      {
+        "configuration": {
+          "routes": [
+            {},
+            {}
+          ]
+        }
+      },
+      {
+        "configuration": {
+          "routes": [
+            {}
+          ]
+        }
+      }
+    ],
+    "L-A4707A72": [
+      {
+        "resourceId": "igw-001"
+      },
+      {
+        "resourceId": "igw-002"
+      }
+    ],
+    "L-B4A6D682": [
+      {
+        "COUNT(*)": 1,
+        "vpcId": "vpc-001"
+      },
+      {
+        "COUNT(*)": 2,
+        "vpcId": "vpc-002"
+      }
+    ],
+    "L-DF5E4CA3": [
+      {
+        "resourceId": "eni-001"
+      },
+      {
+        "resourceId": "eni-002"
+      }
+    ],
+    "L-E79EC296": [
+      {
+        "resourceId": "sg-001"
+      },
+      {
+        "resourceId": "sg-002"
+      }
+    ],
+    "L-F678F1CE": [
+      {
+        "resourceId": "vpc-001"
+      },
+      {
+        "resourceId": "vpc-002"
+      }
+    ]
+  }
+}

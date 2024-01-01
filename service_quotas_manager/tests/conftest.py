@@ -46,6 +46,14 @@ def cost_explorer():
     return botocore.session.get_session().create_client("ce")
 
 
+### AWS Config Expression Results
+
+
+@pytest.fixture
+def aws_config_expression_results():
+    return json.load(open(Path(FIXTURES_PATH) / "custom_collection_queries.json"))
+
+
 ### AWS Service Responses
 
 
