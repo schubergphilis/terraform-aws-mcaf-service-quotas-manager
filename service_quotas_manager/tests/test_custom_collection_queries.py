@@ -67,6 +67,63 @@ class TestCustomCollectionQueries:
                 {"subjectAlternativeNames": ["alt-name-1", "alt-name-2"]},
                 {"subjectAlternativeNames": ["alt-name-1"]},
             ],
+            "L-45FE3B85": [{"resourceId": "gw-001"}, {"resourceId": "gw-002"}],
+            "L-5F53652F": [
+                {
+                    "configuration": {
+                        "natGatewayAddresses": [
+                            {"associationId": "eipassoc-001"},
+                            {"associationId": "eipassoc-002"},
+                        ]
+                    }
+                },
+                {
+                    "configuration": {
+                        "natGatewayAddresses": [{"associationId": "eipassoc-001"}]
+                    }
+                },
+            ],
+            "L-1B52E74A": [{"resourceId": "ep-001"}, {"resourceId": "ep-002"}],
+            "L-29B6F2EB": [
+                {"vpcId": "vpc-001", "COUNT(*)": 1},
+                {"vpcId": "vpc-002", "COUNT(*)": 2},
+            ],
+            "L-83CA0A9D": [
+                {
+                    "configuration": {
+                        "cidrBlockAssociationSet": [
+                            {"cidrBlockState": {"state": "associated"}}
+                        ]
+                    }
+                },
+                {
+                    "configuration": {
+                        "cidrBlockAssociationSet": [
+                            {"cidrBlockState": {"state": "associated"}},
+                            {"cidrBlockState": {"state": "associated"}},
+                        ]
+                    }
+                },
+            ],
+            "L-93826ACB": [
+                {"configuration": {"routes": [{}, {}]}},
+                {"configuration": {"routes": [{}]}},
+            ],
+            "L-2AFB9258": [
+                {
+                    "relationships": [
+                        {"resourceType": "AWS::EC2::SecurityGroup"},
+                        {"resourceType": "AWS::EC2::SecurityGroup"},
+                        {"resourceType": "AWS::EC2::Subnet"},
+                    ]
+                },
+                {
+                    "relationships": [
+                        {"resourceType": "AWS::EC2::VPC"},
+                        {"resourceType": "AWS::EC2::Subnet"},
+                    ]
+                },
+            ],
         }
 
     def test_custom_collection_queries(self, expression_results):
@@ -75,6 +132,7 @@ class TestCustomCollectionQueries:
         )
         for service in all_queries:
             for quota_code, defs in all_queries[service].items():
+                print(f"Testing {defs['parameters']['jmespath']}")
                 assert (
                     float(
                         jmespath.search(

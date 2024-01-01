@@ -133,6 +133,27 @@
     }
   },
   "vpc": {
+    "L-1B52E74A": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::VPCEndpoint' AND configuration.vpcEndpointType = 'Gateway'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-29B6F2EB": {
+      "parameters": {
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::VPCEndpoint' AND configuration.vpcEndpointType = 'Interface' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
+        "jmespath": "max([].\"COUNT(*)\")"
+      },
+      "type": "config"
+    },
+    "L-2AFB9258": {
+      "parameters": {
+        "expression": "SELECT relationships WHERE resourceType = 'AWS::EC2::NetworkInterface'",
+        "jmespath": "max([].length(relationships[?resourceType == 'AWS::EC2::SecurityGroup']))"
+      },
+      "type": "config"
+    },
     "L-407747CB": {
       "parameters": {
         "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::Subnet' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
@@ -140,10 +161,38 @@
       },
       "type": "config"
     },
+    "L-45FE3B85": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::EgressOnlyInternetGateway'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
     "L-589F43AA": {
       "parameters": {
         "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::RouteTable' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
         "jmespath": "max([].\"COUNT(*)\")"
+      },
+      "type": "config"
+    },
+    "L-5F53652F": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::EC2::NatGateway'",
+        "jmespath": "max([].configuration.length(natGatewayAddresses[?starts_with(@.associationId, 'eipassoc')]))"
+      },
+      "type": "config"
+    },
+    "L-83CA0A9D": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::EC2::VPC'",
+        "jmespath": "max([].configuration.length(cidrBlockAssociationSet[?cidrBlockState.state == 'associated']))"
+      },
+      "type": "config"
+    },
+    "L-93826ACB": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::EC2::RouteTable'",
+        "jmespath": "max([].configuration.length(routes))"
       },
       "type": "config"
     },
