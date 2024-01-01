@@ -210,6 +210,61 @@
     ]
   },
   "s3": {
+    "L-146D5F0C": [
+      {
+        "supplementaryConfiguration": {
+          "BucketLifecycleConfiguration": {
+            "rules": [
+              "a",
+              "b"
+            ]
+          }
+        }
+      },
+      {
+        "supplementaryConfiguration": {
+          "BucketLifecycleConfiguration": {
+            "rules": [
+              "a"
+            ]
+          }
+        }
+      }
+    ],
+    "L-3E24E5F9": [
+      {
+        "supplementaryConfiguration": {
+          "BucketNotificationConfiguration": {
+            "configurations": {
+              "notification-001": {},
+              "notification-002": {}
+            }
+          }
+        }
+      },
+      {
+        "supplementaryConfiguration": {
+          "BucketNotificationConfiguration": {
+            "configurations": {
+              "notification-001": {}
+            }
+          }
+        }
+      }
+    ],
+    "L-55BA2C6C": [
+      {
+        "tags": [
+          {}
+        ]
+      },
+      {
+        "tags": [
+          {},
+          {}
+        ]
+      }
+    ],
     "L-DC2B2D3D": [
       {
         "resourceId": "bucket-001"

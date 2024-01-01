@@ -124,6 +124,27 @@
     }
   },
   "s3": {
+    "L-146D5F0C": {
+      "parameters": {
+        "expression": "SELECT supplementaryConfiguration WHERE resourceType = 'AWS::S3::Bucket'",
+        "jmespath": "max([].supplementaryConfiguration.BucketLifecycleConfiguration.length(rules))"
+      },
+      "type": "config"
+    },
+    "L-3E24E5F9": {
+      "parameters": {
+        "expression": "SELECT supplementaryConfiguration WHERE resourceType = 'AWS::S3::Bucket'",
+        "jmespath": "max([].supplementaryConfiguration.BucketNotificationConfiguration.length(configurations))"
+      },
+      "type": "config"
+    },
+    "L-55BA2C6C": {
+      "parameters": {
+        "expression": "SELECT tags WHERE resourceType = 'AWS::S3::Bucket'",
+        "jmespath": "max([].length(tags))"
+      },
+      "type": "config"
+    },
     "L-DC2B2D3D": {
       "parameters": {
         "expression": "SELECT resourceId WHERE resourceType = 'AWS::S3::Bucket'",
