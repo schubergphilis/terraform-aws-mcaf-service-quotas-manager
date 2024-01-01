@@ -123,6 +123,71 @@
       "type": "config"
     }
   },
+  "redshift": {
+    "L-2E428669": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::Redshift::ClusterSnapshot' AND configuration.snapshotType = 'manual'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-6C6B6042": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::ClusterSubnetGroup'",
+        "jmespath": "max([].configuration.length(subnets))"
+      },
+      "type": "config"
+    },
+    "L-7C6A532D": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "max([].configuration.length(iamRoles))"
+      },
+      "type": "config"
+    },
+    "L-84537943": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "[?starts_with(@.configuration.nodeType, 'dc2.')] | max([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    },
+    "L-93AC8AE6": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "[?starts_with(@.configuration.nodeType, 'ra3.')] | max([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    },
+    "L-A3830BB3": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::Redshift::ClusterParameterGroup'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-BE12F428": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::Redshift::ClusterSubnetGroup'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-C7372F73": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "[?starts_with(@.configuration.nodeType, 'ds2.')] | max([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    },
+    "L-F9D462EE": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "sum([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    }
+  },
   "s3": {
     "L-146D5F0C": {
       "parameters": {

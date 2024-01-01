@@ -209,6 +209,122 @@
       }
     ]
   },
+  "redshift": {
+    "L-2E428669": [
+      {
+        "resourceId": "snap-001"
+      },
+      {
+        "resourceId": "snap-002"
+      }
+    ],
+    "L-6C6B6042": [
+      {
+        "configuration": {
+          "subnets": [
+            {},
+            {}
+          ]
+        }
+      },
+      {
+        "configuration": {
+          "subnets": [
+            {}
+          ]
+        }
+      }
+    ],
+    "L-7C6A532D": [
+      {
+        "configuration": {
+          "iamRoles": [
+            {},
+            {}
+          ]
+        }
+      },
+      {
+        "configuration": {
+          "iamRoles": [
+            {}
+          ]
+        }
+      }
+    ],
+    "L-84537943": [
+      {
+        "configuration": {
+          "nodeType": "dc2.small",
+          "numberOfNodes": 2
+        }
+      },
+      {
+        "configuration": {
+          "nodeType": "dc2.large",
+          "numberOfNodes": 1
+        }
+      }
+    ],
+    "L-93AC8AE6": [
+      {
+        "configuration": {
+          "nodeType": "ra3.small",
+          "numberOfNodes": 2
+        }
+      },
+      {
+        "configuration": {
+          "nodeType": "ra3.large",
+          "numberOfNodes": 1
+        }
+      }
+    ],
+    "L-A3830BB3": [
+      {
+        "resourceId": "cluster-1"
+      },
+      {
+        "resourceId": "cluster-2"
+      }
+    ],
+    "L-BE12F428": [
+      {
+        "resourceId": "group-001"
+      },
+      {
+        "resourceId": "group-002"
+      }
+    ],
+    "L-C7372F73": [
+      {
+        "configuration": {
+          "nodeType": "ds2.small",
+          "numberOfNodes": 2
+        }
+      },
+      {
+        "configuration": {
+          "nodeType": "ds2.large",
+          "numberOfNodes": 1
+        }
+      }
+    ],
+    "L-F9D462EE": [
+      {
+        "configuration": {
+          "nodeType": "ds2.small",
+          "numberOfNodes": 1
+        }
+      },
+      {
+        "configuration": {
+          "nodeType": "ds2.large",
+          "numberOfNodes": 1
+        }
+      }
+    ]
+  },
   "s3": {
     "L-146D5F0C": [
       {
