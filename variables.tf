@@ -1,11 +1,11 @@
 variable "bucket_prefix" {
-  description = "The optional prefix for the service quota manager configuration bucket"
+  description = "The prefix for the service quotas manager configuration bucket."
   type        = string
-  default     = ""
+  default     = "service-quotas-manager"
 }
 
 variable "bucket_name" {
-  description = "The optional name for the service quota manager configuration bucket, overrides bucket_prefix"
+  description = "The optional name for the service quotas manager configuration bucket, overrides `bucket_prefix`."
   type        = string
   default     = null
 }
@@ -16,10 +16,10 @@ variable "kms_key_arn" {
 }
 
 variable "quotas_manager_configuration" {
-  description = "The configuration for the service quota manager"
+  description = "The configuration for the service quotas manager"
   type = list(object({
     account_id        = string
-    role_name         = optional(string, "ServiceQuotaManager")
+    role_name         = optional(string, "ServiceQuotasManagerRole")
     selected_services = optional(list(string), [])
     alerting_config = optional(object({
       default_threshold_perc = number
