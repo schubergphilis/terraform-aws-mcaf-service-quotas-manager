@@ -123,7 +123,93 @@
       "type": "config"
     }
   },
+  "redshift": {
+    "L-2E428669": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::Redshift::ClusterSnapshot' AND configuration.snapshotType = 'manual'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-6C6B6042": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::ClusterSubnetGroup'",
+        "jmespath": "max([].configuration.length(subnets))"
+      },
+      "type": "config"
+    },
+    "L-7C6A532D": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "max([].configuration.length(iamRoles))"
+      },
+      "type": "config"
+    },
+    "L-84537943": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "[?starts_with(@.configuration.nodeType, 'dc2.')] | max([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    },
+    "L-93AC8AE6": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "[?starts_with(@.configuration.nodeType, 'ra3.')] | max([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    },
+    "L-A3830BB3": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::Redshift::ClusterParameterGroup'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-BE12F428": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::Redshift::ClusterSubnetGroup'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-C7372F73": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "[?starts_with(@.configuration.nodeType, 'ds2.')] | max([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    },
+    "L-F9D462EE": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::Redshift::Cluster'",
+        "jmespath": "sum([].configuration.numberOfNodes)"
+      },
+      "type": "config"
+    }
+  },
   "s3": {
+    "L-146D5F0C": {
+      "parameters": {
+        "expression": "SELECT supplementaryConfiguration WHERE resourceType = 'AWS::S3::Bucket'",
+        "jmespath": "max([].supplementaryConfiguration.BucketLifecycleConfiguration.length(rules))"
+      },
+      "type": "config"
+    },
+    "L-3E24E5F9": {
+      "parameters": {
+        "expression": "SELECT supplementaryConfiguration WHERE resourceType = 'AWS::S3::Bucket'",
+        "jmespath": "max([].supplementaryConfiguration.BucketNotificationConfiguration.length(configurations))"
+      },
+      "type": "config"
+    },
+    "L-55BA2C6C": {
+      "parameters": {
+        "expression": "SELECT tags WHERE resourceType = 'AWS::S3::Bucket'",
+        "jmespath": "max([].length(tags))"
+      },
+      "type": "config"
+    },
     "L-DC2B2D3D": {
       "parameters": {
         "expression": "SELECT resourceId WHERE resourceType = 'AWS::S3::Bucket'",
@@ -133,6 +219,27 @@
     }
   },
   "vpc": {
+    "L-1B52E74A": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::VPCEndpoint' AND configuration.vpcEndpointType = 'Gateway'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
+    "L-29B6F2EB": {
+      "parameters": {
+        "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::VPCEndpoint' AND configuration.vpcEndpointType = 'Interface' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
+        "jmespath": "max([].\"COUNT(*)\")"
+      },
+      "type": "config"
+    },
+    "L-2AFB9258": {
+      "parameters": {
+        "expression": "SELECT relationships WHERE resourceType = 'AWS::EC2::NetworkInterface'",
+        "jmespath": "max([].length(relationships[?resourceType == 'AWS::EC2::SecurityGroup']))"
+      },
+      "type": "config"
+    },
     "L-407747CB": {
       "parameters": {
         "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::Subnet' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
@@ -140,10 +247,38 @@
       },
       "type": "config"
     },
+    "L-45FE3B85": {
+      "parameters": {
+        "expression": "SELECT resourceId WHERE resourceType = 'AWS::EC2::EgressOnlyInternetGateway'",
+        "jmespath": "length([])"
+      },
+      "type": "config"
+    },
     "L-589F43AA": {
       "parameters": {
         "expression": "SELECT configuration.vpcId, COUNT(*) WHERE resourceType = 'AWS::EC2::RouteTable' GROUP BY configuration.vpcId ORDER BY COUNT(*) DESC",
         "jmespath": "max([].\"COUNT(*)\")"
+      },
+      "type": "config"
+    },
+    "L-5F53652F": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::EC2::NatGateway'",
+        "jmespath": "max([].configuration.length(natGatewayAddresses[?starts_with(@.associationId, 'eipassoc')]))"
+      },
+      "type": "config"
+    },
+    "L-83CA0A9D": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::EC2::VPC'",
+        "jmespath": "max([].configuration.length(cidrBlockAssociationSet[?cidrBlockState.state == 'associated']))"
+      },
+      "type": "config"
+    },
+    "L-93826ACB": {
+      "parameters": {
+        "expression": "SELECT configuration WHERE resourceType = 'AWS::EC2::RouteTable'",
+        "jmespath": "max([].configuration.length(routes))"
       },
       "type": "config"
     },
