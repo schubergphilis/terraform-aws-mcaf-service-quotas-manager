@@ -122,7 +122,7 @@ data "aws_iam_policy_document" "service_quotas_manager" {
 
     condition {
       test     = "StringEquals"
-      variable = "AWS:SourceOwner"
+      variable = "AWS:SourceAccount"
 
       values = [
         "123456789000"
