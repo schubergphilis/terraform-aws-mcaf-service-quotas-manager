@@ -1,8 +1,9 @@
 module "service_quotas_manager_bucket" {
   source  = "schubergphilis/mcaf-s3/aws"
-  version = "~> 0.11.0"
+  version = "~> 0.12.0"
 
-  name          = var.bucket_name != null ? var.bucket_name : "${var.bucket_prefix}service-quotas-manager-${data.aws_region.current.name}"
+  name          = var.bucket_name
+  name_prefix   = var.bucket_name == null ? var.bucket_prefix : null
   force_destroy = true
   kms_key_arn   = var.kms_key_arn
   versioning    = true
