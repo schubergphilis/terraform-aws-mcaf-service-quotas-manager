@@ -99,10 +99,10 @@ Each role requires the following trust policy:
 	"Version": "2012-10-17",
 	"Statement": [
 	  {
-			"Sid": "AllowServiceQuotaManager",
+			"Sid": "AllowServiceQuotasManager",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::<manager_account_id>:role/ServiceQuotaManagerExecutionRole-<region_name>"
+				"AWS": "arn:aws:iam::<manager_account_id>:role/ServiceQuotasManagerExecutionRole-<region_name>"
 			},
 			"Action": "sts:AssumeRole"
 		}

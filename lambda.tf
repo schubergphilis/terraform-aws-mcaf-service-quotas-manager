@@ -38,13 +38,13 @@ module "service_quotas_manager_lambda" {
 }
 
 resource "aws_iam_role" "service_quotas_manager_execution_role" {
-  name               = "ServiceQuotaManagerExecutionRole-${data.aws_region.current.name}"
+  name               = "ServiceQuotasManagerExecutionRole-${data.aws_region.current.name}"
   assume_role_policy = file("${path.module}/templates/lambda_assume_role_policy.json")
   tags               = var.tags
 }
 
 resource "aws_iam_role_policy" "service_quotas_manager_execution_policy" {
-  name = "ServiceQuotaManagerExecutionPolicy-${data.aws_region.current.name}"
+  name = "ServiceQuotasManagerExecutionPolicy-${data.aws_region.current.name}"
   role = aws_iam_role.service_quotas_manager_execution_role.id
 
   policy = templatefile("${path.module}/templates/lambda_execution_policy.json.tpl", {
