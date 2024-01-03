@@ -1,6 +1,6 @@
 module "service_quotas_manager_bucket" {
   source  = "schubergphilis/mcaf-s3/aws"
-  version = "~> 0.12.0"
+  version = "~> 0.12.1"
 
   name          = var.bucket_name
   name_prefix   = var.bucket_name == null ? var.bucket_prefix : null
