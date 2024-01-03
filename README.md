@@ -16,6 +16,8 @@ This Service Quotas Manager can be installed as part as an AWS Organization or i
 
 1. Automated requesting of service quota increases by configurable steps and motivations for support case updates (requires at least AWS Business Support and alarms to be enabled).
 
+Please see [supported quotas](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/blob/main/SUPPORTED_QUOTAS.md) for an overview of supported services and service quotas.
+
 ## Prerequisites & considerations
 
 * To support collection of usage metrics from AWS Config, AWS Config needs to be enabled in every target account in your organization. This is usually the case in enterprise organizations.
