@@ -10,6 +10,16 @@ variable "bucket_name" {
   default     = null
 }
 
+variable "execution_role" {
+  description = "Configuration of the IAM role to assume to execute the service quotas manager lambda"
+  type = object({
+    name_prefix          = optional(string, "ServiceQuotasManagerExecutionRole")
+    path                 = optional(string, "/")
+    permissions_boundary = optional(string, null)
+  })
+  default = {}
+}
+
 variable "kms_key_arn" {
   description = "The ARN of the KMS key to use with the configuration S3 bucket and scheduler"
   type        = string
