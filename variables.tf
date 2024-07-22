@@ -20,7 +20,9 @@ variable "quotas_manager_configuration" {
   type = list(object({
     account_id        = string
     role_name         = optional(string, "ServiceQuotasManagerRole")
+    role_path         = optional(string, "/")
     selected_services = optional(list(string), [])
+
     alerting_config = optional(object({
       default_threshold_perc = number
       notification_topic_arn = optional(string, "")
