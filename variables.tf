@@ -18,6 +18,11 @@ variable "execution_role" {
     permissions_boundary = optional(string, null)
   })
   default = {}
+
+  validation {
+    condition     = can(regex("^/.*?/$", var.execution_role.path)) || var.execution_role.path == "/"
+    error_message = "The 'path' must start and end with '/' or be '/'."
+  }
 }
 
 variable "kms_key_arn" {
@@ -62,6 +67,11 @@ variable "quotas_manager_configuration" {
   validation {
     condition     = length(var.quotas_manager_configuration) == length(distinct(var.quotas_manager_configuration[*].account_id))
     error_message = "quotas manager configuration items needs to have a unique account_id defined"
+  }
+
+  validation {
+    condition     = alltrue([for config in var.quotas_manager_configuration : (can(regex("^/.*?/$", config.role_path)) || config.role_path == "/")])
+    error_message = "Each 'role_path' must start and end with '/' or be '/'."
   }
 }
 
