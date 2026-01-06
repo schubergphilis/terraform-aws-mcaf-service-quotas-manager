@@ -211,7 +211,7 @@ Each role requires the following policies attached:
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | The prefix for the service quotas manager configuration bucket. | `string` | `"service-quotas-manager"` | no |
 | <a name="input_execution_role"></a> [execution\_role](#input\_execution\_role) | Configuration of the IAM role to assume to execute the service quotas manager lambda | <pre>object({<br/>    name_prefix          = optional(string, "ServiceQuotasManagerExecutionRole")<br/>    path                 = optional(string, "/")<br/>    permissions_boundary = optional(string, null)<br/>  })</pre> | `{}` | no |
 | <a name="input_schedule_timezone"></a> [schedule\_timezone](#input\_schedule\_timezone) | The timezone to schedule service quota metric collection in | `string` | `"Europe/Amsterdam"` | no |
-| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | VPC subnets where lambda is deployed | `list(string)` | `null` | no |
+| <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | VPC subnets where Lambda is deployed | `list(string)` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to assign to resources created by this module | `map(string)` | `{}` | no |
 
 ## Outputs
