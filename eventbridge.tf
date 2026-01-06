@@ -61,7 +61,7 @@ resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
   group_name                   = aws_scheduler_schedule_group.service_quotas_manager.name
   schedule_expression          = "cron(0 * ? * * *)"
   schedule_expression_timezone = var.schedule_timezone
-
+  kms_key_arn                  = var.kms_key_arn
   flexible_time_window {
     mode                      = "FLEXIBLE"
     maximum_window_in_minutes = 5

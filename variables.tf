@@ -76,3 +76,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "subnet_ids" {
+  description = "VPC subnets where Lambda is deployed"
+  type        = list(string)
+  default     = null
+}
