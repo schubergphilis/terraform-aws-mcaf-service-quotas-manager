@@ -1,3 +1,12 @@
+mock_provider "aws" {
+  override_data {
+    target = data.aws_region.current
+    values = {
+      name = "eu-west-1"
+    }
+  }
+}
+
 run "setup_tests" {
   module {
     source = "./tests/setup"
@@ -9,11 +18,11 @@ run "basic" {
 
   variables {
     bucket_prefix = "sqmtest-basic-"
-    kms_key_arn   = "arn:aws:kms:eu-west-1:123456789012:key/example"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
 
     quotas_manager_configuration = [
       {
-        account_id = "123456789000"
+        account_id = 123456789000
         role_name  = "ServiceQuotaManagerRole"
         selected_services = [
           "AWS Lambda",
@@ -47,6 +56,7 @@ run "increase_config" {
 
   variables {
     bucket_prefix = "sqmtest-increase-config-"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
     quotas_manager_configuration = [
       {
         account_id = "123456789000"
@@ -103,6 +113,7 @@ run "multi_account" {
 
   variables {
     bucket_prefix = "sqmtest-multi-account-"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
 
     quotas_manager_configuration = [
       {
