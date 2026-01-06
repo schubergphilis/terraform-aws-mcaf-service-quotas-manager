@@ -78,7 +78,7 @@ variable "tags" {
 }
 
 variable "subnet_ids" {
-  description = "VPC subnets where lambda is deployed"
+  description = "VPC subnets where Lambda is deployed"
   type        = list(string)
   default     = null
 }
