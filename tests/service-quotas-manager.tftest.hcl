@@ -9,7 +9,7 @@ run "basic" {
 
   variables {
     bucket_prefix = "sqmtest-basic-"
-    kms_key_arn = "arn:aws:kms:eu-west-1:123456789012:key/example"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:123456789012:key/example"
 
     quotas_manager_configuration = [
       {
