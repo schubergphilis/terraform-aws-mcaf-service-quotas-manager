@@ -2,7 +2,7 @@ mock_provider "aws" {
   override_data {
     target = data.aws_region.current
     values = {
-      name = "eu-west-1"
+      name     = "eu-west-1"
       role_arn = "arn:aws:iam::123456789012:role/dummy-role"
     }
   }
