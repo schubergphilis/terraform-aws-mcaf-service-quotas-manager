@@ -6,38 +6,38 @@ mock_provider "aws" {
     }
   }
   override_data {
-  target = data.aws_iam_policy_document.ssl_policy
-  values = {
-    json = <<EOF
+    target = data.aws_iam_policy_document.ssl_policy
+    values = {
+      json = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": []
 }
 EOF
+    }
   }
-}
   override_data {
-  target = data.aws_iam_policy_document.logging_policy
-  values = {
-    json = <<EOF
+    target = data.aws_iam_policy_document.logging_policy
+    values = {
+      json = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": []
 }
 EOF
+    }
   }
-}
   override_data {
-  target = data.aws_iam_policy_document.combined
-  values = {
-    json = <<EOF
+    target = data.aws_iam_policy_document.combined
+    values = {
+      json = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": []
 }
 EOF
+    }
   }
-}
 }
 
 run "setup_tests" {
