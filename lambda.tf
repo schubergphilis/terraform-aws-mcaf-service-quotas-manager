@@ -23,6 +23,7 @@ module "service_quotas_manager_lambda" {
   runtime       = "python3.11"
   timeout       = 300
   subnet_ids    = var.subnet_ids
+  security_group_egress_rules = var.security_group_egress_rules
 
   environment = {
     POWERTOOLS_LOG_LEVEL    = "INFO"
