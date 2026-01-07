@@ -11,17 +11,19 @@ module "service_quotas_manager_lambda" {
   #checkov:skip=CKV_AWS_338:Ensure CloudWatch log groups retains logs for at least 1 year
   filename = data.archive_file.service_quotas_manager_source.output_path
 
-  name          = "ServiceQuotasManager"
-  create_policy = false
-  description   = "Service Quotas Manager Lambda Function"
-  handler       = "service_quotas_manager.service_quotas_manager.handler"
-  kms_key_arn   = var.kms_key_arn
-  log_retention = 90
-  memory_size   = 256
-  retries       = 0
-  role_arn      = aws_iam_role.service_quotas_manager_execution_role.arn
-  runtime       = "python3.11"
-  timeout       = 300
+  name                        = "ServiceQuotasManager"
+  create_policy               = false
+  description                 = "Service Quotas Manager Lambda Function"
+  handler                     = "service_quotas_manager.service_quotas_manager.handler"
+  kms_key_arn                 = var.kms_key_arn
+  log_retention               = 90
+  memory_size                 = 256
+  retries                     = 0
+  role_arn                    = aws_iam_role.service_quotas_manager_execution_role.arn
+  runtime                     = "python3.11"
+  timeout                     = 300
+  subnet_ids                  = var.subnet_ids
+  security_group_egress_rules = var.security_group_egress_rules
 
   environment = {
     POWERTOOLS_LOG_LEVEL    = "INFO"
