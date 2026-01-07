@@ -5,39 +5,6 @@ mock_provider "aws" {
       name = "eu-west-1"
     }
   }
-  override_data {
-    target = data.aws_iam_policy_document.ssl_policy
-    values = {
-      json = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": []
-}
-EOF
-    }
-  }
-  override_data {
-    target = data.aws_iam_policy_document.logging_policy
-    values = {
-      json = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": []
-}
-EOF
-    }
-  }
-  override_data {
-    target = data.aws_iam_policy_document.combined
-    values = {
-      json = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": []
-}
-EOF
-    }
-  }
 
   override_data {
     target = data.aws_caller_identity.current
