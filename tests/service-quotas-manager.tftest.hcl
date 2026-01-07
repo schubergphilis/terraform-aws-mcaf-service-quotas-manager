@@ -62,14 +62,14 @@ EOF
     defaults = {
       arn = "arn:aws:events:eu-west-1:123456789012:rule/fake-rule-for-tests"
     }
-  } 
+  }
 }
 
 override_module {
   target = module.service_quotas_manager_lambda
   outputs = {
     name = "service-quotas-manager"
-    arn = "arn:aws:lambda:eu-west-1:123456789012:function:service-quotas-manager"
+    arn  = "arn:aws:lambda:eu-west-1:123456789012:function:service-quotas-manager"
   }
 }
 
@@ -77,7 +77,7 @@ override_module {
   target = module.service_quotas_manager_bucket
   outputs = {
     name = "service-quotas-manager-bucket"
-    arn = "arn:aws:s3:::service-quotas-manager-bucket"
+    arn  = "arn:aws:s3:::service-quotas-manager-bucket"
   }
 }
 
