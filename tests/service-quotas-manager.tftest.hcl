@@ -2,10 +2,42 @@ mock_provider "aws" {
   override_data {
     target = data.aws_region.current
     values = {
-      name     = "eu-west-1"
-      role_arn = "arn:aws:iam::123456789012:role/dummy-role"
+      name = "eu-west-1"
     }
   }
+  override_data {
+  target = data.aws_iam_policy_document.ssl_policy
+  values = {
+    json = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": []
+}
+EOF
+  }
+}
+  override_data {
+  target = data.aws_iam_policy_document.logging_policy
+  values = {
+    json = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": []
+}
+EOF
+  }
+}
+  override_data {
+  target = data.aws_iam_policy_document.combined
+  values = {
+    json = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": []
+}
+EOF
+  }
+}
 }
 
 run "setup_tests" {
@@ -20,10 +52,9 @@ run "basic" {
   variables {
     bucket_prefix = "sqmtest-basic-"
     kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
-    role_arn      = "arn:aws:iam::123456789012:role/fake-role-for-tests"
     quotas_manager_configuration = [
       {
-        account_id = 123456789000
+        account_id = "123456789000"
         role_name  = "ServiceQuotaManagerRole"
         selected_services = [
           "AWS Lambda",
@@ -58,7 +89,6 @@ run "increase_config" {
   variables {
     bucket_prefix = "sqmtest-increase-config-"
     kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
-    role_arn      = "arn:aws:iam::123456789012:role/fake-role-for-tests"
     quotas_manager_configuration = [
       {
         account_id = "123456789000"
@@ -116,7 +146,6 @@ run "multi_account" {
   variables {
     bucket_prefix = "sqmtest-multi-account-"
     kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
-    role_arn      = "arn:aws:iam::123456789012:role/fake-role-for-tests"
 
     quotas_manager_configuration = [
       {
