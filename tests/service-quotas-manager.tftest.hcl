@@ -1,3 +1,53 @@
+mock_provider "aws" {
+  override_data {
+    target = data.aws_region.current
+    values = {
+      name = "eu-west-1"
+    }
+  }
+
+  override_data {
+    target = data.aws_caller_identity.current
+    values = {
+      account_id = "123456789012"
+    }
+  }
+
+  mock_resource "aws_iam_role" {
+    defaults = {
+      arn = "arn:aws:iam::123456789012:role/fake-role-for-tests"
+    }
+  }
+
+  mock_resource "aws_iam_policy" {
+    defaults = {
+      arn = "arn:aws:iam::aws:policy/fake-policy"
+    }
+  }
+
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = {
+      arn = "arn:aws:events:eu-west-1:123456789012:rule/fake-rule-for-tests"
+    }
+  }
+}
+
+override_module {
+  target = module.service_quotas_manager_lambda
+  outputs = {
+    name = "service-quotas-manager"
+    arn  = "arn:aws:lambda:eu-west-1:123456789012:function:service-quotas-manager"
+  }
+}
+
+override_module {
+  target = module.service_quotas_manager_bucket
+  outputs = {
+    name = "service-quotas-manager-bucket"
+    arn  = "arn:aws:s3:::service-quotas-manager-bucket"
+  }
+}
+
 run "setup_tests" {
   module {
     source = "./tests/setup"
@@ -9,6 +59,7 @@ run "basic" {
 
   variables {
     bucket_prefix = "sqmtest-basic-"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
 
     quotas_manager_configuration = [
       {
@@ -46,6 +97,7 @@ run "increase_config" {
 
   variables {
     bucket_prefix = "sqmtest-increase-config-"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
     quotas_manager_configuration = [
       {
         account_id = "123456789000"
@@ -102,6 +154,7 @@ run "multi_account" {
 
   variables {
     bucket_prefix = "sqmtest-multi-account-"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
 
     quotas_manager_configuration = [
       {
