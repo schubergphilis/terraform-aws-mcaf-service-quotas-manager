@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### What's Changed
 
-* No changes
+#### 🚀 Features
+
+* fix: Adding lambda in vpc , Adding kms in scheduler (#12)
 
 **Full Changelog**: https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/compare/v0.4.0...v0.5.0
 
