@@ -59,3 +59,8 @@ resource "aws_iam_role_policy" "service_quotas_manager_execution_policy" {
     service_quotas_manager_bucket_arn = module.service_quotas_manager_bucket.arn
   })
 }
+
+resource "aws_iam_role_policy_attachment" "service_quotas_manager_vpc_access" {
+  role       = aws_iam_role.service_quotas_manager_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
