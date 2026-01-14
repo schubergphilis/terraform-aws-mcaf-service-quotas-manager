@@ -59,9 +59,9 @@ resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
   #checkov:skip=CKV_AWS_297:Ensure EventBridge Scheduler Schedule uses Customer Managed Key (CMK)
   name                         = "sqm-collect-service-quotas-${each.key}"
   group_name                   = aws_scheduler_schedule_group.service_quotas_manager.name
+  kms_key_arn                  = var.kms_key_arn
   schedule_expression          = "cron(0 * ? * * *)"
   schedule_expression_timezone = var.schedule_timezone
-  kms_key_arn                  = var.kms_key_arn
 
   flexible_time_window {
     mode                      = "FLEXIBLE"

@@ -18,6 +18,11 @@ variable "execution_role" {
     permissions_boundary = optional(string, null)
   })
   default = {}
+
+  validation {
+    condition     = can(regex("^/.*?/$", var.execution_role.path)) || var.execution_role.path == "/"
+    error_message = "The 'path' must start and end with '/' or be '/'."
+  }
 }
 
 variable "kms_key_arn" {
@@ -63,24 +68,17 @@ variable "quotas_manager_configuration" {
     condition     = length(var.quotas_manager_configuration) == length(distinct(var.quotas_manager_configuration[*].account_id))
     error_message = "quotas manager configuration items needs to have a unique account_id defined"
   }
+
+  validation {
+    condition     = alltrue([for config in var.quotas_manager_configuration : (can(regex("^/.*?/$", config.role_path)) || config.role_path == "/")])
+    error_message = "Each 'role_path' must start and end with '/' or be '/'."
+  }
 }
 
 variable "schedule_timezone" {
   description = "The timezone to schedule service quota metric collection in"
   type        = string
   default     = "Europe/Amsterdam"
-}
-
-variable "tags" {
-  description = "Tags to assign to resources created by this module"
-  type        = map(string)
-  default     = {}
-}
-
-variable "subnet_ids" {
-  description = "VPC subnets where Lambda is deployed"
-  type        = list(string)
-  default     = null
 }
 
 variable "security_group_egress_rules" {
@@ -102,4 +100,16 @@ variable "security_group_egress_rules" {
       to_port     = 443
     }
   ]
+}
+
+variable "subnet_ids" {
+  description = "VPC subnets where Lambda is deployed"
+  type        = list(string)
+  default     = null
+}
+
+variable "tags" {
+  description = "Tags to assign to resources created by this module"
+  type        = map(string)
+  default     = {}
 }
