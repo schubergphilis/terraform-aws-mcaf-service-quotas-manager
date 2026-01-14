@@ -81,18 +81,6 @@ variable "schedule_timezone" {
   default     = "Europe/Amsterdam"
 }
 
-variable "tags" {
-  description = "Tags to assign to resources created by this module"
-  type        = map(string)
-  default     = {}
-}
-
-variable "subnet_ids" {
-  description = "VPC subnets where Lambda is deployed"
-  type        = list(string)
-  default     = null
-}
-
 variable "security_group_egress_rules" {
   type = list(object({
     cidr_ipv4                    = optional(string)
@@ -112,4 +100,16 @@ variable "security_group_egress_rules" {
       to_port     = 443
     }
   ]
+}
+
+variable "subnet_ids" {
+  description = "VPC subnets where Lambda is deployed"
+  type        = list(string)
+  default     = null
+}
+
+variable "tags" {
+  description = "Tags to assign to resources created by this module"
+  type        = map(string)
+  default     = {}
 }

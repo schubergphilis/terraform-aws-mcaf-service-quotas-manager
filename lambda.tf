@@ -21,9 +21,9 @@ module "service_quotas_manager_lambda" {
   retries                     = 0
   role_arn                    = aws_iam_role.service_quotas_manager_execution_role.arn
   runtime                     = "python3.11"
-  timeout                     = 300
-  subnet_ids                  = var.subnet_ids
   security_group_egress_rules = var.security_group_egress_rules
+  subnet_ids                  = var.subnet_ids
+  timeout                     = 300
 
   environment = {
     POWERTOOLS_LOG_LEVEL    = "INFO"
