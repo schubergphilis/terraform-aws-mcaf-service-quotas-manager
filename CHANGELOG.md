@@ -5,6 +5,14 @@ All notable changes to this project will automatically be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.5.2 - 2026-02-19
+
+### What's Changed
+
+* fix: Make the inline policy as managed policy by @svashisht03 in https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/pull/18
+
+**Full Changelog**: https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/compare/v0.5.1...v0.5.2
+
 ## v0.5.1 - 2026-01-14
 
 ### What's Changed
