@@ -47,7 +47,7 @@ resource "aws_iam_role" "service_quotas_manager_execution_role" {
   tags                 = var.tags
 }
 
-resource "aws_iam_role_policy" "service_quotas_manager_execution_policy" {
+resource "aws_iam_policy" "service_quotas_manager_execution_policy" {
   name = "ServiceQuotasManagerExecutionPolicy-${data.aws_region.current.name}"
 
   policy = templatefile("${path.module}/templates/lambda_execution_policy.json.tpl", {
@@ -66,5 +66,5 @@ resource "aws_iam_role_policy_attachment" "service_quotas_manager_vpc_access" {
 
 resource "aws_iam_role_policy_attachment" "service_quotas_manager_execution_policy_attach" {
   role       = aws_iam_role.service_quotas_manager_execution_role.name
-  policy_arn = aws_iam_role_policy.service_quotas_manager_execution_policy.arn
+  policy_arn = aws_iam_policy.service_quotas_manager_execution_policy.arn
 }
