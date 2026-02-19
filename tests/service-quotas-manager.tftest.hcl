@@ -87,7 +87,7 @@ run "basic" {
   }
 
   assert {
-    condition     = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
+    condition     = length(jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
     error_message = "Expected the service quota manager to only assume a role in configured target accounts."
   }
 }
@@ -144,7 +144,7 @@ run "increase_config" {
   }
 
   assert {
-    condition     = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
+    condition     = length(jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
     error_message = "Expected the service quota manager to only assume a role in configured target accounts."
   }
 }
@@ -191,7 +191,7 @@ run "multi_account" {
   }
 
   assert {
-    condition     = length(jsondecode(aws_iam_role_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 2
+    condition     = length(jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 2
     error_message = "Expected the service quota manager to only assume a role in configured target accounts."
   }
 }
