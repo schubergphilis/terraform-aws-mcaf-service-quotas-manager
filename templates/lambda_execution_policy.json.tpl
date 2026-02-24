@@ -19,7 +19,7 @@
         {
             "Effect": "Allow",
             "Action": "sts:AssumeRole",
-            "Resource": "arn:aws:iam::*:role${role_path}/ServiceQuotasManagerRole"
+            "Resource": "arn:aws:iam::*:role${role_path}ServiceQuotasManagerRole"
         },
         {
             "Effect": "Allow",
