@@ -114,3 +114,7 @@ variable "tags" {
   default     = {}
 }
 
+variable "role_path" {
+  description = "Namespaced IAM role path used when constructing the ServiceQuotasManagerRole ARN"
+  type        = string
+}
