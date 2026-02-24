@@ -51,6 +51,7 @@ resource "aws_iam_policy" "service_quotas_manager_execution_policy" {
   name = "ServiceQuotasManagerExecutionPolicy-${data.aws_region.current.name}"
 
   policy = templatefile("${path.module}/templates/lambda_execution_policy.json.tpl", {
+    assumable_role_arns               = jsonencode(local.assumable_role_arns)
     account_id                        = data.aws_caller_identity.current.id
     kms_key_arn                       = var.kms_key_arn
     region_name                       = data.aws_region.current.name
