@@ -55,7 +55,7 @@ resource "aws_iam_policy" "service_quotas_manager_execution_policy" {
     kms_key_arn                       = var.kms_key_arn
     region_name                       = data.aws_region.current.name
     service_quotas_manager_bucket_arn = module.service_quotas_manager_bucket.arn
-    role_path                         =  var.role_path
+    role_path                         = var.role_path
   })
 }
 
