@@ -10,32 +10,21 @@ variable "bucket_name" {
   default     = null
 }
 
-variable "execution_role" {
-  description = "Configuration of the IAM role to assume to execute the service quotas manager lambda"
-  type = object({
-    name_prefix          = optional(string, "ServiceQuotasManagerExecutionRole")
-    path                 = optional(string, "/")
-    permissions_boundary = optional(string, null)
-  })
-  default = {}
-
-  validation {
-    condition     = can(regex("^/.*?/$", var.execution_role.path)) || var.execution_role.path == "/"
-    error_message = "The 'path' must start and end with '/' or be '/'."
-  }
-}
-
 variable "kms_key_arn" {
   description = "The ARN of the KMS key to use with the configuration S3 bucket and scheduler"
   type        = string
+}
+
+variable "permissions_boundary" {
+  type        = string
+  default     = null
+  description = "The ARN of the policy that is used to set the permissions boundary for the role."
 }
 
 variable "quotas_manager_configuration" {
   description = "The configuration for the service quotas manager"
   type = list(object({
     account_id        = string
-    role_name         = optional(string, "ServiceQuotasManagerRole")
-    role_path         = optional(string, "/")
     selected_services = optional(list(string), [])
 
     alerting_config = optional(object({
@@ -67,11 +56,6 @@ variable "quotas_manager_configuration" {
   validation {
     condition     = length(var.quotas_manager_configuration) == length(distinct(var.quotas_manager_configuration[*].account_id))
     error_message = "quotas manager configuration items needs to have a unique account_id defined"
-  }
-
-  validation {
-    condition     = alltrue([for config in var.quotas_manager_configuration : (can(regex("^/.*?/$", config.role_path)) || config.role_path == "/")])
-    error_message = "Each 'role_path' must start and end with '/' or be '/'."
   }
 }
 
@@ -118,4 +102,15 @@ variable "role_path" {
   description = "Namespaced IAM role path used when constructing the ServiceQuotasManagerRole ARN"
   type        = string
   default     = "/"
+
+  validation {
+    condition     = can(regex("^/.*?/$", var.role_path)) || var.role_path == "/"
+    error_message = "The 'path' must start and end with '/' or be '/'."
+  }
+}
+
+variable "role_name" {
+  description = "Name of the IAM role used for the ServiceQuotasManager"
+  type        = string
+  default     = "ServiceQuotasManagerRole"
 }

@@ -40,10 +40,10 @@ module "service_quotas_manager_lambda" {
 }
 
 resource "aws_iam_role" "service_quotas_manager_execution_role" {
-  name                 = "${var.execution_role.name_prefix}-${data.aws_region.current.name}"
+  name                 = "${var.role_name}-${data.aws_region.current.name}"
   assume_role_policy   = file("${path.module}/templates/lambda_assume_role_policy.json")
-  path                 = var.execution_role.path
-  permissions_boundary = var.execution_role.permissions_boundary
+  path                 = var.role_path
+  permissions_boundary = var.permissions_boundary
   tags                 = var.tags
 }
 
