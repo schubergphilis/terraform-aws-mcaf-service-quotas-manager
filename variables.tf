@@ -1,3 +1,17 @@
+variable "assume_role" {
+  description = "IAM role configuration for cross-account access. The Lambda execution role will assume this role in target accounts to manage service quotas. The same role name and path must exist in all target accounts with a trust policy allowing the Lambda execution role."
+  type = object({
+    name = optional(string, "ServiceQuotasManagerRole")
+    path = optional(string, "/")
+  })
+  default = {}
+
+  validation {
+    condition     = can(regex("^/.*?/$", var.assume_role.path)) || var.assume_role.path == "/"
+    error_message = "The 'path' must start and end with '/' or be '/'."
+  }
+}
+
 variable "bucket_prefix" {
   description = "The prefix for the service quotas manager configuration bucket."
   type        = string
@@ -10,15 +24,24 @@ variable "bucket_name" {
   default     = null
 }
 
+variable "execution_role" {
+  description = "Configuration of the IAM role of the service quotas manager lambda"
+  type = object({
+    name_prefix          = optional(string, "ServiceQuotasManagerExecutionRole")
+    path                 = optional(string, "/")
+    permissions_boundary = optional(string, null)
+  })
+  default = {}
+
+  validation {
+    condition     = can(regex("^/.*?/$", var.execution_role.path)) || var.execution_role.path == "/"
+    error_message = "The 'path' must start and end with '/' or be '/'."
+  }
+}
+
 variable "kms_key_arn" {
   description = "The ARN of the KMS key to use with the configuration S3 bucket and scheduler"
   type        = string
-}
-
-variable "permissions_boundary" {
-  type        = string
-  default     = null
-  description = "The ARN of the policy that is used to set the permissions boundary for the role."
 }
 
 variable "quotas_manager_configuration" {
@@ -96,21 +119,4 @@ variable "tags" {
   description = "Tags to assign to resources created by this module"
   type        = map(string)
   default     = {}
-}
-
-variable "role_path" {
-  description = "Namespaced IAM role path used when constructing the ServiceQuotasManagerRole ARN"
-  type        = string
-  default     = "/"
-
-  validation {
-    condition     = can(regex("^/.*?/$", var.role_path)) || var.role_path == "/"
-    error_message = "The 'path' must start and end with '/' or be '/'."
-  }
-}
-
-variable "role_name" {
-  description = "Name of the IAM role used for the ServiceQuotasManager"
-  type        = string
-  default     = "ServiceQuotasManagerRole"
 }

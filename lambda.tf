@@ -40,10 +40,10 @@ module "service_quotas_manager_lambda" {
 }
 
 resource "aws_iam_role" "service_quotas_manager_execution_role" {
-  name                 = "${var.role_name}-${data.aws_region.current.name}"
+  name                 = "${var.execution_role.name_prefix}-${data.aws_region.current.name}"
   assume_role_policy   = file("${path.module}/templates/lambda_assume_role_policy.json")
-  path                 = var.role_path
-  permissions_boundary = var.permissions_boundary
+  path                 = var.execution_role.path
+  permissions_boundary = var.execution_role.permissions_boundary
   tags                 = var.tags
 }
 
@@ -54,9 +54,9 @@ resource "aws_iam_policy" "service_quotas_manager_execution_policy" {
     account_id                        = data.aws_caller_identity.current.id
     kms_key_arn                       = var.kms_key_arn
     region_name                       = data.aws_region.current.name
+    role_name                         = var.assume_role.name
+    role_path                         = var.assume_role.path
     service_quotas_manager_bucket_arn = module.service_quotas_manager_bucket.arn
-    role_path                         = var.role_path
-    role_name                         = var.role_name
   })
 }
 

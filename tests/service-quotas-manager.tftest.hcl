@@ -64,7 +64,6 @@ run "basic" {
     quotas_manager_configuration = [
       {
         account_id = "123456789000"
-        role_name  = "ServiceQuotaManagerRole"
         selected_services = [
           "AWS Lambda",
         ]
@@ -88,7 +87,12 @@ run "basic" {
 
   assert {
     condition     = length(jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
-    error_message = "Expected the service quota manager to only assume a role in configured target accounts."
+    error_message = "Expected exactly one wildcard role resource pattern."
+  }
+
+  assert {
+    condition     = jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"][0] == "arn:aws:iam::*:role/ServiceQuotasManagerRole"
+    error_message = "Expected wildcard ARN pattern: arn:aws:iam::*:role/ServiceQuotasManagerRole"
   }
 }
 
@@ -101,7 +105,6 @@ run "increase_config" {
     quotas_manager_configuration = [
       {
         account_id = "123456789000"
-        role_name  = "ServiceQuotaManagerRole"
         selected_services = [
           "Amazon Virtual Private Cloud (Amazon VPC)",
           "Amazon Elastic Compute Cloud (Amazon EC2)",
@@ -145,7 +148,12 @@ run "increase_config" {
 
   assert {
     condition     = length(jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
-    error_message = "Expected the service quota manager to only assume a role in configured target accounts."
+    error_message = "Expected exactly one wildcard role resource pattern."
+  }
+
+  assert {
+    condition     = jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"][0] == "arn:aws:iam::*:role/ServiceQuotasManagerRole"
+    error_message = "Expected wildcard ARN pattern: arn:aws:iam::*:role/ServiceQuotasManagerRole"
   }
 }
 
@@ -159,7 +167,6 @@ run "multi_account" {
     quotas_manager_configuration = [
       {
         account_id = "123456789000"
-        role_name  = "ServiceQuotaManagerRole"
         alerting_config = {
           default_threshold_perc = 75
           notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
@@ -167,7 +174,6 @@ run "multi_account" {
       },
       {
         account_id = "123456789001"
-        role_name  = "ServiceQuotaManagerRole"
         selected_services = [
           "Amazon Virtual Private Cloud (Amazon VPC)",
           "Amazon DynamoDB"
@@ -192,6 +198,45 @@ run "multi_account" {
 
   assert {
     condition     = length(jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
-    error_message = "Expected the service quota manager to only assume a role in configured target accounts."
+    error_message = "Expected exactly one wildcard role resource pattern."
+  }
+
+  assert {
+    condition     = jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"][0] == "arn:aws:iam::*:role/ServiceQuotasManagerRole"
+    error_message = "Expected wildcard ARN pattern: arn:aws:iam::*:role/ServiceQuotasManagerRole"
+  }
+}
+
+run "custom_role" {
+  command = apply
+
+  variables {
+    bucket_prefix = "sqmtest-custom-role-"
+    kms_key_arn   = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+
+    assume_role = {
+      name = "CustomQuotaRole"
+      path = "/custom/path/"
+    }
+
+    quotas_manager_configuration = [
+      {
+        account_id = "123456789000"
+        alerting_config = {
+          default_threshold_perc = 75
+          notification_topic_arn = "arn:aws:sns:eu-west-1:123456789000:service-quotas-manager-notifications"
+        }
+      }
+    ]
+  }
+
+  assert {
+    condition     = length(jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"]) == 1
+    error_message = "Expected exactly one wildcard role resource pattern."
+  }
+
+  assert {
+    condition     = jsondecode(aws_iam_policy.service_quotas_manager_execution_policy.policy)["Statement"][2]["Resource"][0] == "arn:aws:iam::*:role/custom/path/CustomQuotaRole"
+    error_message = "Expected wildcard ARN to use custom role name and path: arn:aws:iam::*:role/custom/path/CustomQuotaRole"
   }
 }
