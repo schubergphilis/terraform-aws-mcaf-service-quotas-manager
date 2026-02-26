@@ -1,3 +1,17 @@
+variable "assume_role" {
+  description = "IAM role configuration for cross-account access. The Lambda execution role will assume this role in target accounts to manage service quotas. The same role name and path must exist in all target accounts with a trust policy allowing the Lambda execution role."
+  type = object({
+    name = optional(string, "ServiceQuotasManagerRole")
+    path = optional(string, "/")
+  })
+  default = {}
+
+  validation {
+    condition     = can(regex("^/.*?/$", var.assume_role.path)) || var.assume_role.path == "/"
+    error_message = "The 'path' must start and end with '/' or be '/'."
+  }
+}
+
 variable "bucket_prefix" {
   description = "The prefix for the service quotas manager configuration bucket."
   type        = string
@@ -11,7 +25,7 @@ variable "bucket_name" {
 }
 
 variable "execution_role" {
-  description = "Configuration of the IAM role to assume to execute the service quotas manager lambda"
+  description = "Configuration of the IAM role of the service quotas manager lambda"
   type = object({
     name_prefix          = optional(string, "ServiceQuotasManagerExecutionRole")
     path                 = optional(string, "/")
@@ -34,8 +48,6 @@ variable "quotas_manager_configuration" {
   description = "The configuration for the service quotas manager"
   type = list(object({
     account_id        = string
-    role_name         = optional(string, "ServiceQuotasManagerRole")
-    role_path         = optional(string, "/")
     selected_services = optional(list(string), [])
 
     alerting_config = optional(object({
@@ -67,11 +79,6 @@ variable "quotas_manager_configuration" {
   validation {
     condition     = length(var.quotas_manager_configuration) == length(distinct(var.quotas_manager_configuration[*].account_id))
     error_message = "quotas manager configuration items needs to have a unique account_id defined"
-  }
-
-  validation {
-    condition     = alltrue([for config in var.quotas_manager_configuration : (can(regex("^/.*?/$", config.role_path)) || config.role_path == "/")])
-    error_message = "Each 'role_path' must start and end with '/' or be '/'."
   }
 }
 

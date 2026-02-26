@@ -19,7 +19,7 @@
         {
             "Effect": "Allow",
             "Action": "sts:AssumeRole",
-            "Resource": ${assumable_role_arns}
+            "Resource": ["arn:aws:iam::*:role${role_path}${role_name}"]
         },
         {
             "Effect": "Allow",
