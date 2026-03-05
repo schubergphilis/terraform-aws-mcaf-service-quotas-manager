@@ -82,6 +82,12 @@ variable "quotas_manager_configuration" {
   }
 }
 
+variable "region" {
+  type        = string
+  default     = null
+  description = "The AWS region where the resources will be created. If omitted, the default provider region is used."
+}
+
 variable "schedule_timezone" {
   description = "The timezone to schedule service quota metric collection in"
   type        = string

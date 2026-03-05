@@ -1,11 +1,12 @@
 module "service_quotas_manager_bucket" {
   source  = "schubergphilis/mcaf-s3/aws"
-  version = "~> 0.12.1"
+  version = "~> 2.0.0"
 
   name          = var.bucket_name
   name_prefix   = var.bucket_name == null ? var.bucket_prefix : null
   force_destroy = true
   kms_key_arn   = var.kms_key_arn
+  region        = var.region
   versioning    = true
   tags          = var.tags
 
@@ -34,4 +35,5 @@ resource "aws_s3_object" "service_quotas_manager_config" {
       role_path = var.assume_role.path
     })
   ])
+  region = local.account_region
 }
