@@ -2,6 +2,14 @@ data "archive_file" "service_quotas_manager_source" {
   type        = "zip"
   source_dir  = "${path.module}/service_quotas_manager"
   output_path = "service_quotas_manager.zip"
+
+  excludes = [
+    "tests",
+    ".ruff.toml",
+    "Pipfile",
+    "Pipfile.lock",
+    "pytest.ini"
+  ]
 }
 
 module "service_quotas_manager_lambda" {
