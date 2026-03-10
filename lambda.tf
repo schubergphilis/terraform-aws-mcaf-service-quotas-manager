@@ -40,8 +40,9 @@ module "service_quotas_manager_lambda" {
 
   # Use a AWS provided layer to include Powertools to simplify the redistribution process.
   # Also see https://docs.powertools.aws.dev/lambda/python/latest/#lambda-layer.
+  # And https://docs.aws.amazon.com/powertools/python/3.24.0/getting-started/install/#lambda-layer
   layers = [
-    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV2:58"
+    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python311-x86_64:27"
   ]
 
   tags = var.tags
