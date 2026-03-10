@@ -3,7 +3,7 @@ resource "aws_cloudwatch_event_rule" "trigger_service_quotas_manager_on_alarm" {
 
   name        = "ServiceQuotaManagerIncreaserOnAlarm"
   description = "Event rule to trigger the Service Quota Manager if a quota reaches its configured threshold."
-  region      = local.account_region
+  region      = var.region
   tags        = var.tags
 
   event_pattern = jsonencode({
@@ -24,7 +24,7 @@ resource "aws_cloudwatch_event_target" "trigger_service_quotas_manager_on_alarm"
   count = local.has_increase_config ? 1 : 0
 
   arn    = module.service_quotas_manager_lambda.arn
-  region = local.account_region
+  region = var.region
   rule   = aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm[0].name
 
   input_transformer {
@@ -46,14 +46,14 @@ resource "aws_lambda_permission" "trigger_service_quotas_manager_on_alarm" {
   action         = "lambda:InvokeFunction"
   function_name  = module.service_quotas_manager_lambda.name
   principal      = "events.amazonaws.com"
-  region         = local.account_region
+  region         = var.region
   source_account = local.account_id
   source_arn     = aws_cloudwatch_event_rule.trigger_service_quotas_manager_on_alarm[0].arn
 }
 
 resource "aws_scheduler_schedule_group" "service_quotas_manager" {
   name   = "ServiceQuotaManager"
-  region = local.account_region
+  region = var.region
   tags   = var.tags
 }
 
@@ -66,7 +66,7 @@ resource "aws_scheduler_schedule" "sqm_collect_service_quotas" {
   kms_key_arn                  = var.kms_key_arn
   schedule_expression          = "cron(0 * ? * * *)"
   schedule_expression_timezone = var.schedule_timezone
-  region                       = local.account_region
+  region                       = var.region
 
   flexible_time_window {
     mode                      = "FLEXIBLE"

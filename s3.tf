@@ -35,5 +35,5 @@ resource "aws_s3_object" "service_quotas_manager_config" {
       role_path = var.assume_role.path
     })
   ])
-  region = local.account_region
+  region = var.region
 }
