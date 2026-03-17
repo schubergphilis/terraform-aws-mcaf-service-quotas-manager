@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Dict, Optional
 
 import boto3
@@ -151,7 +152,10 @@ def handler(event: Dict, _context: LambdaContext):
         logger.error("No configuration found for account. Exiting...")
         return
 
-    assume_role_arn = f"arn:aws:iam::{account_id}:role/{config['role_name']}"
+    role_name = os.getenv("ASSUME_ROLE_NAME", "ServiceQuotasManagerRole")
+    role_path = os.getenv("ASSUME_ROLE_PATH", "/")
+
+    assume_role_arn = f"arn:aws:iam::{account_id}:role{role_path}{role_name}"
     remote_creds = _assume_role(assume_role_arn)
 
     if not remote_creds:
