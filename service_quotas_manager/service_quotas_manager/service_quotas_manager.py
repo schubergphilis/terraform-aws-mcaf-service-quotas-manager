@@ -152,9 +152,8 @@ def handler(event: Dict, _context: LambdaContext):
         logger.error("No configuration found for account. Exiting...")
         return
 
-    role_name = os.getenv("ASSUME_ROLE_NAME", "ServiceQuotasManagerRole")
-    role_path = os.getenv("ASSUME_ROLE_PATH", "/")
-
+    role_name = config.get("role_name", "ServiceQuotasManagerRole")
+    role_path = config.get("role_path", "/")
     assume_role_arn = f"arn:aws:iam::{account_id}:role{role_path}{role_name}"
     remote_creds = _assume_role(assume_role_arn)
 

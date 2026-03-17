@@ -28,8 +28,6 @@ module "service_quotas_manager_lambda" {
   environment = {
     POWERTOOLS_LOG_LEVEL    = "INFO"
     POWERTOOLS_SERVICE_NAME = "ServiceQuotasManager"
-    ASSUME_ROLE_NAME        = var.assume_role.name
-    ASSUME_ROLE_PATH        = var.assume_role.path
   }
 
   # Use a AWS provided layer to include Powertools to simplify the redistribution process.
