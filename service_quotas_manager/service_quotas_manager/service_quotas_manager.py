@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Dict, Optional
 
 import boto3
