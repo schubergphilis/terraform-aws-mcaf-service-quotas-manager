@@ -67,6 +67,7 @@ class ServiceQuota:
     quota_context: Dict = field(default_factory=lambda: {})
     usage_metric: Dict = field(default_factory=lambda: {})
     value: Optional[float] = None
+    description: str = ""
 
 
 @dataclass
