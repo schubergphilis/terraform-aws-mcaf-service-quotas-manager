@@ -26,8 +26,8 @@ module "service_quotas_manager_bucket" {
 }
 
 resource "aws_s3_object" "service_quotas_manager_config" {
-  bucket  = module.service_quotas_manager_bucket.name
-  key     = "quotas_manager_config.json"
+  bucket = module.service_quotas_manager_bucket.name
+  key    = "quotas_manager_config.json"
   content = jsonencode([
     for cfg in var.quotas_manager_configuration : merge(cfg, {
       role_name = var.assume_role.name
