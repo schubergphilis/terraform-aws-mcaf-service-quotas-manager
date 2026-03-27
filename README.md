@@ -166,21 +166,21 @@ Each role requires the following policies attached:
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.7.0 |
 | <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.4.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.25.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.4.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.25.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_service_quotas_manager_bucket"></a> [service\_quotas\_manager\_bucket](#module\_service\_quotas\_manager\_bucket) | schubergphilis/mcaf-s3/aws | ~> 0.12.1 |
-| <a name="module_service_quotas_manager_lambda"></a> [service\_quotas\_manager\_lambda](#module\_service\_quotas\_manager\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 1.1.2 |
+| <a name="module_service_quotas_manager_bucket"></a> [service\_quotas\_manager\_bucket](#module\_service\_quotas\_manager\_bucket) | schubergphilis/mcaf-s3/aws | ~> 2.0.0 |
+| <a name="module_service_quotas_manager_lambda"></a> [service\_quotas\_manager\_lambda](#module\_service\_quotas\_manager\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 3.0.0 |
 
 ## Resources
 
@@ -213,6 +213,7 @@ Each role requires the following policies attached:
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | The optional name for the service quotas manager configuration bucket, overrides `bucket_prefix`. | `string` | `null` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | The prefix for the service quotas manager configuration bucket. | `string` | `"service-quotas-manager"` | no |
 | <a name="input_execution_role"></a> [execution\_role](#input\_execution\_role) | Configuration of the IAM role of the service quotas manager lambda | <pre>object({<br/>    name_prefix          = optional(string, "ServiceQuotasManagerExecutionRole")<br/>    path                 = optional(string, "/")<br/>    permissions_boundary = optional(string, null)<br/>  })</pre> | `{}` | no |
+| <a name="input_region"></a> [region](#input\_region) | The AWS region where the resources will be created. If omitted, the default provider region is used. | `string` | `null` | no |
 | <a name="input_schedule_timezone"></a> [schedule\_timezone](#input\_schedule\_timezone) | The timezone to schedule service quota metric collection in | `string` | `"Europe/Amsterdam"` | no |
 | <a name="input_security_group_egress_rules"></a> [security\_group\_egress\_rules](#input\_security\_group\_egress\_rules) | n/a | <pre>list(object({<br/>    cidr_ipv4                    = optional(string)<br/>    cidr_ipv6                    = optional(string)<br/>    description                  = string<br/>    from_port                    = optional(number, 0)<br/>    ip_protocol                  = optional(string, "-1")<br/>    prefix_list_id               = optional(string)<br/>    referenced_security_group_id = optional(string)<br/>    to_port                      = optional(number, 0)<br/>  }))</pre> | <pre>[<br/>  {<br/>    "cidr_ipv4": "0.0.0.0/0",<br/>    "description": "Default Security Group rule for Service Quota Manager Lambda",<br/>    "ip_protocol": "tcp",<br/>    "to_port": 443<br/>  }<br/>]</pre> | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | VPC subnets where Lambda is deployed | `list(string)` | `null` | no |
