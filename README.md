@@ -1,3 +1,9 @@
+<!-- migrate-repo:banner -->
+> [!IMPORTANT]
+> **This repository has moved to [`schubergphilis-ep/terraform-aws-mcaf-service-quotas-manager`](https://github.com/schubergphilis-ep/terraform-aws-mcaf-service-quotas-manager).**
+> Please update your references and use the new location for issues, PRs, and contributions.
+<!-- migrate-repo:banner -->
+
 # Service Quotas Manager
 
 ![tests](https://github.com/schubergphilis/terraform-aws-mcaf-service-quotas-manager/actions/workflows/test.yml/badge.svg)
